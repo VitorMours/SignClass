@@ -1,7 +1,11 @@
 .venv/
 venv/
 venv
-
 .env/
 env/
 env
+
+
+.migrations/
+migrations/
+migrations
