@@ -1,5 +1,5 @@
 from typing import List
-from core.interfaces.user_repository import UserRepository
+from backend.api.core.interfaces.user_repository_interface import UserRepository
 from core.entities.user_entity import UserEntity
 
 class UserService:

@@ -4,46 +4,41 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from django.utils import timezone
 import uuid
 
-class Individual(AbstractBaseUser, PermissionsMixin):
+class Individual(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
+    password = models.CharField(max_length=50, null=False, blank=False)
     last_login = models.DateTimeField(default=timezone.now, editable=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-
-    # Campos de PermissionsMixin com related_name exclusivo
-    groups = models.ManyToManyField(
-        Group,
-        related_name="individuals",
-        blank=True,
-        help_text="The groups this user belongs to.",
-        verbose_name="groups"
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name="individuals",
-        blank=True,
-        help_text="Specific permissions for this user.",
-        verbose_name="user permissions"
-    )
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    objects = UserManager()
-
-    def __str__(self):
-        return self.email
     
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.last_name}"
 
 class Teatcher(Individual):
     is_staff= True    
 
 class Video(models.Model):
+    AREA_CHOICES = [
+        ("Ling","Linguagens"),
+        ("Math","Matematica"),
+        ("Humn","Humanidades"),
+        ("Natr","Natureza"),
+        ("Saud","Saude e Qualidade de Vida")
+    ]
+
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(max_length=120, null=False, blank=False)
-    owner = models.ForeignKey(Individual, on_delete=models.CASCADE)
     path = models.URLField(max_length=255, blank=False, null=False)
-    description = models.CharField(255, blank=True, null=False)
+    description = models.CharField(max_length=255, blank=True, null=False)
+    owner = models.ForeignKey(Individual, on_delete=models.CASCADE)
+    knowledge_sector = models.CharField(max_length=4, null=False, blank=False, choices=AREA_CHOICES)
+
+    def __str__(self) -> None:
+        return f"{self.name}: {self.description} - {self.owner.first_name} {self.owner.last_name}"
+
+
+class Knowledge(models.Model):
+    pass
