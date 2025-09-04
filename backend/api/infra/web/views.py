@@ -1,35 +1,56 @@
-from rest_framework.views import APIView
+from rest_framework import viewsets, views
 from rest_framework.response import Response
-from rest_framework import status
+from django.contrib.auth import authenticate
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+from api.infra.db.models import Individual, Video
+from api.infra.web.serializers import UserSerializer, VideoSerializer
 
-from api.infra.db.repositories import UserRepository
-from api.core.usecases.user_usecase import UserUseCase
-from api.infra.web.serializers import UserSerializer
 
-class UserView(APIView):
+class AuthenticationView(views.APIView):
+    authentication_classes = []
+    permission_classes = []
+    
+    def get(self) -> None:
+        pass 
+    
+    def post(self, request) -> None:
+        email = request.data.get("email")
+        password = request.data.get("password")
+        if authenticate(email, password):
+            return Response({}) # TODO: Tem que preencher isso daqui ainda
+
+
+class UserViewSet(viewsets.ModelViewSet):
     """
-        Endpoint focado no uso, e manipulação de dados de usuários dentro da api
+    User data endpoints
     """
-    def get(self, request):
-        repository = UserRepository()
-        users = repository.get_all()  # retorna User
-        serialized_data = UserSerializer(users, many=True)
-        return Response(serialized_data.data, status=status.HTTP_200_OK)
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        repository = UserRepository()
-        use_case = UserUseCase(repository=repository)
+    queryset = Individual.objects.all()
+    serializer_class = UserSerializer
 
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
 
-        user_entity = use_case.create(
-            first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
-            email=validated_data["email"],
-            password=validated_data["password"]
-        )
+class VideoViewSet(viewsets.ModelViewSet):
+    """
+    Video data endpoints
+    """
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
-        output_serializer = UserSerializer(user_entity)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+    queryset = Video.objects.all()
+    serializer_class = VideoSerializer
+
+class UserVideoViewSet(viewsets.ModelViewSet):
+    """
+    Videos em que pertencem a um determinado usuario em que devemos ter o id dele dentro da rota para acessar
+    """
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = VideoSerializer
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_pk")
+        return Video.objects.filter(owner__id=user_id)
+    

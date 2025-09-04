@@ -1,3 +1,4 @@
+
 # LibraChat
 
 O Librachat é um projeto desenvolvido com o foco de ser um glossário de sinais para estudantes 
