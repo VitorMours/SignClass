@@ -18,6 +18,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
    ),
    public=True,
+   permission_classes=(permissions.AllowAny,),
 )
 
 
@@ -33,10 +34,4 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include(router.urls)),
     path('', include(user_routes.urls)),
-]
-from api.infra.web.views import UserView
-
-urlpatterns = [
-    path("users/", UserView.as_view())
-    path("users/<int:pk>", UserView.as_view())
 ]
