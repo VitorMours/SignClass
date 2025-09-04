@@ -40,5 +40,4 @@ class Video(models.Model):
         return f"{self.name}: {self.description} - {self.owner.first_name} {self.owner.last_name}"
 
 
-class Knowledge(models.Model):
-    pass
+# class Knowledge(models.Model):
