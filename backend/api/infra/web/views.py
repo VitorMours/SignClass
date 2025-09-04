@@ -1,7 +1,8 @@
 from rest_framework import viewsets, views
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
-from rest_framework.permissions import SessionAuthentication, IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 from api.infra.db.models import Individual, Video
 from api.infra.web.serializers import UserSerializer, VideoSerializer
 
