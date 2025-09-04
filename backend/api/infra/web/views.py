@@ -7,7 +7,9 @@ from api.core.usecases.user_usecase import UserUseCase
 from api.infra.web.serializers import UserSerializer
 
 class UserView(APIView):
-
+    """
+        Endpoint focado no uso, e manipulação de dados de usuários dentro da api
+    """
     def get(self, request):
         repository = UserRepository()
         users = repository.get_all()  # retorna User
