@@ -1,1 +1,0 @@
-from .test_individual_model import *
