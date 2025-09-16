@@ -13,17 +13,15 @@ class Sign(models.Model):
             "BRAÇO": "braço",
     }
 
-    id = models.UUIDField(primary_key=True, unique=True, editable=False, default=uuid.uuid5)
+    id = models.UUIDField(primary_key=True, unique=True, editable=False, default=uuid.uuid4())
     name = models.CharField(max_length=20, blank=False, null=False)
     meaning = models.CharField(max_length=125, blank=False, null=False)
     hand_configuration = models.URLField()
     articulation_point = models.CharField(choices=ARTICULATION_POINT_CHOICES)
-    movement = models.CharField()
+    movement = models.CharField()   
     body_expression = models.CharField()
     direction_and_orientation = models.CharField()
-
-    def save(self, *args, **kwargs):
-        # Gera o UUID 5 apenas se o objeto for novo
-        if not self.id:
-            self.id = uuid.uuid5(NAMESPACE_SIGN, self.name)
-        super().save(*args, **kwargs)
+    
+    
+    def __str__(self) -> str:
+        return f"{self.name}: {self.meaning}"
