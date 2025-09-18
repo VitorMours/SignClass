@@ -1,10 +1,11 @@
-from django.test import TestCase 
+from django.test import TestCase
+from django.contrib.auth.models import User 
 from django.db import models
 import importlib
 import api.models as model
 import uuid
 
-class TestModels(TestCase):
+class TestSignModel(TestCase):
     def setUp(self) -> None:
         self.sign_class_fields = ["id", "name", "meaning", "hand_configuration",
                   "articulation_point", "movement","body_expression","direction_and_orientation"]
@@ -64,3 +65,61 @@ class TestModels(TestCase):
     
     def test_if_sign_have_str_representation(self) -> None:
         self.assertTrue(str(self.sign_instance), f"{self.sign_instance.name}: {self.sign_instance.meaning}")
+        
+        
+        
+class TestVideoModel(TestCase):
+    def setUp(self) -> None:
+        self.model_fields = ["id","name","owner","media","knowledge_sector"]
+        
+    def test_if_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_model_exists(self) -> None: 
+        module = importlib.import_module("api.models")
+        self.assertTrue(hasattr(module, "Video"))
+        
+    def test_if_video_class_is_a_model(self) -> None:
+        video = model.Video 
+        self.assertTrue(issubclass(video, models.Model))
+        
+    def test_if_model_have_the_necessary_fields(self) -> None:
+        for field in self.model_fields:
+            self.assertTrue(hasattr(model.Video, field))
+            
+    def test_if_model_have_knowledge_sector_enum(self) -> None:
+        module = importlib.import_module("api.models")
+        self.assertTrue(hasattr(module.Video, "KNOWLEDGE_SECTOR_ENUM"))
+    
+    def test_if_model_fields_are_from_the_correct_type(self) -> None:
+        self.assertIsInstance(model.Video._meta.get_field("id"), models.UUIDField)
+        self.assertIsInstance(model.Video._meta.get_field("name"), models.CharField)
+        self.assertIsInstance(model.Video._meta.get_field("owner"), models.ForeignKey)
+        self.assertIsInstance(model.Video._meta.get_field("media"), models.FileField)
+        self.assertIsInstance(model.Video._meta.get_field("knowledge_sector"), models.CharField)
+
+    #TODO: Para lucas implementar
+    def test_if_model_media_have_the_correct_config(self) -> None:
+        self.assertTrue(model.Video._meta.get_field("media").help_text == "Coloque o arquivo que deseja subir")
+        
+    #TODO: Para lucas implementar
+    def test_if_model_name_field_have_correct_config(self) -> None:
+        pass 
+    
+    #TODO: Para lucas implementar
+    def test_if_model_owner_field_have_the_correct_config(self) -> None:
+        pass
+    
+    def test_if_knowledge_sector_fields_is_choices(self) -> None:
+        self.assertTrue(model.Video._meta.get_field("knowledge_sector").choices)
+        
+    def test_if_knowledge_sector_choice_is_correct(self) -> None:
+        choices = model.Video.KNOWLEDGE_SECTOR_ENUM
+        self.assertEqual(model.Video._meta.get_field("knowledge_sector").choices, choices)
+    
+    def test_if_all_model_fields_have_help_text(self) -> None:
+        model_fields = model.Video._meta.get_fields()
+        for field in model_fields:
+            if field.name == "id" or field.name == "owner":
+                continue
+            self.assertNotEqual(field.help_text, '', f"O campo {field.name} nao possui help text")
