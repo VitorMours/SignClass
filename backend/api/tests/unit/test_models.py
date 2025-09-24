@@ -98,15 +98,12 @@ class TestVideoModel(TestCase):
         self.assertIsInstance(model.Video._meta.get_field("media"), models.FileField)
         self.assertIsInstance(model.Video._meta.get_field("knowledge_sector"), models.CharField)
 
-    #TODO: Para lucas implementar
     def test_if_model_media_have_the_correct_config(self) -> None:
         self.assertTrue(model.Video._meta.get_field("media").help_text == "Coloque o arquivo que deseja subir")
         
-    #TODO: Para lucas implementar
     def test_if_model_name_field_have_correct_config(self) -> None:
         pass 
     
-    #TODO: Para lucas implementar
     def test_if_model_owner_field_have_the_correct_config(self) -> None:
         pass
     
@@ -123,3 +120,8 @@ class TestVideoModel(TestCase):
             if field.name == "id" or field.name == "owner":
                 continue
             self.assertNotEqual(field.help_text, '', f"O campo {field.name} nao possui help text")
+            
+    def test_if_class_id_have_unique_configuration(self) -> None:
+        video_model = model.Video()
+        self.assertTrue(model.Video._meta.get_field("id").unique)
+    
