@@ -45,6 +45,6 @@ class Video(models.Model):
     knowledge_sector = models.CharField(choices=KNOWLEDGE_SECTOR_ENUM, help_text="De que área esse conhecimento é pertencente")
     sign = models.ForeignKey(Sign, on_delete=models.CASCADE, help_text="Qual é o sinal do video")
     
-    
+     
     def __str__(self) -> None:
         return f"[ {self.knowledge_sector} ] - {self.name}"

@@ -102,10 +102,10 @@ class TestVideoModel(TestCase):
         self.assertTrue(model.Video._meta.get_field("media").help_text == "Coloque o arquivo que deseja subir")
         
     def test_if_model_name_field_have_correct_config(self) -> None:
-        pass 
+        pass
     
     def test_if_model_owner_field_have_the_correct_config(self) -> None:
-        pass
+        self.assertTrue(model.Video._meta.get_field("sign").help_text, "Qual é o sinal do video")
     
     def test_if_knowledge_sector_fields_is_choices(self) -> None:
         self.assertTrue(model.Video._meta.get_field("knowledge_sector").choices)
