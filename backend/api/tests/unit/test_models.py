@@ -1,9 +1,99 @@
 from django.test import TestCase
-from django.contrib.auth.models import User 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User, AbstractUser, UserManager
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 import importlib
 import api.models as model
 import uuid
+import inspect
+
+
+class TestCustomUserManager(TestCase):
+    def setUp(self) -> None:
+        self.create_user_method_signature = ["self", "email", "password", "first_name", "last_name", "extra_fields"]
+
+    def test_is_running(self) -> None:
+        self.assertTrue(True)
+    
+    def test_if_model_is_importable(self) -> None:
+        module = importlib.import_module("api.models")
+        self.assertTrue(hasattr(module, "CustomUserManager"))
+        
+    def test_if_custom_user_manager_is_correct_subclass(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUserManager
+        self.assertTrue(issubclass(class_, UserManager))   
+    
+    def test_if_custom_user_manager_have_create_user_method(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUserManager
+        self.assertTrue(hasattr(class_, "create_user"))
+        
+    def test_if_cusmo_user_manager_have_create_superuser_method(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUserManager
+        self.assertTrue(hasattr(class_, "create_superuser"))
+    
+    def test_if_custom_user_manager_create_user_method_have_correct_signature(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUserManager
+        signature = inspect.signature(class_.create_user)
+        actual_params = set(signature.parameters.keys())
+        expected_params = set(self.create_user_method_signature)
+        self.assertEqual(actual_params, expected_params)
+        
+    def test_if_can_create_user_with_create_user_method(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUserManager()
+        custom_user = get_user_model()
+        new_user = custom_user.objects.create_user("jvrezendemoura@gmail.com","32322016aA!","lucas")
+        self.assertEqual(type(new_user), model.CustomUser)
+    
+    def testif_create_superuser_method_have_correct_signature(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUserManager
+        signature = inspect.signature(class_.create_superuser)
+        # TODO: Finish this test
+        
+    # def test_create_superuser_method_with_wrong_data(self) -> None:
+    #     module = importlib.import_module("api.models")
+    #     custom_user = get_user_model()
+    #     new_super_user = custom_user.objects.create_superuser()
+    
+    
+    
+class TestUserModel(TestCase):
+    def setUp(self) -> None:
+        self.required_fields = ("first_name","password")
+        
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_custom_user_model_exists_and_can_import(self) -> None:
+        module = importlib.import_module("api.models")
+        self.assertTrue(hasattr(module, "CustomUser"))
+        
+    def test_if_custom_user_is_abstract_user_sub_class(self) -> None:
+        module = importlib.import_module("api.models")
+        user_model = module.CustomUser
+        self.assertTrue(issubclass(user_model, AbstractUser))
+        self.assertTrue(issubclass(user_model, PermissionsMixin))
+        
+    def test_if_custom_user_have_the_required_field(self) -> None:
+        module = importlib.import_module("api.models")
+        user_model = model.CustomUser
+        self.assertTrue(hasattr(user_model, "REQUIRED_FIELDS"))
+        
+    def test_if_custom_user_model_required_fields_are_correct(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUser
+        self.assertEqual(self.required_fields, class_.REQUIRED_FIELDS)
+        
+    def test_if_string_representation_of_the_model_is_correct(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUser
+        
 
 class TestSignModel(TestCase):
     def setUp(self) -> None:
@@ -67,7 +157,6 @@ class TestSignModel(TestCase):
         self.assertTrue(str(self.sign_instance), f"{self.sign_instance.name}: {self.sign_instance.meaning}")
         
         
-        
 class TestVideoModel(TestCase):
     def setUp(self) -> None:
         self.model_fields = ["id","name","owner","media","knowledge_sector"]
@@ -124,4 +213,5 @@ class TestVideoModel(TestCase):
     def test_if_class_id_have_unique_configuration(self) -> None:
         video_model = model.Video()
         self.assertTrue(model.Video._meta.get_field("id").unique)
+    
     

@@ -7,15 +7,11 @@ class EmailBackend(BaseBackend):
         for the login and the register system be based on 
         the unique field inside of the database
     """
-    def authenticate(self, request, email=None, password=None, token=None) -> None:
+    def authenticate(self, request, email=None, password=None, token=None):
+        pass
+    
+    def get_user(self, user_id):
         try:
-            if token is None:
-                user = User.objects.get(email=email)
-                if user.check_password(password):
-                    pass
-                else:
-                    return None
-
-
+            return User.objects.get(pk=user_id)
         except User.DoesNotExist:
-            pass
+            return None

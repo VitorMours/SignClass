@@ -1,8 +1,37 @@
 from django.db import models
 import uuid
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, UserManager
+from django.utils.translation import gettext_lazy as _
 
 NAMESPACE_SIGN = uuid.UUID('a67b938c-f09b-4e1a-8c31-4a11270b284e')
+    
+class CustomUserManager(UserManager):
+    def create_user(self, email, password, first_name, last_name=None, **extra_fields):
+        if not email or not password or not first_name:
+            raise ValueError(_("A required value was not passed"))
+        
+        email = self.normalize_email(email)
+        user = self.model(
+            first_name= first_name,
+            last_name=last_name,
+            email=email, **extra_fields)
+        
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    # def create_superuser()
+
+class CustomUser(AbstractUser, PermissionsMixin):
+    username = None
+    email = models.EmailField("email address", unique=True)
+    last_name = models.CharField(max_length=30, blank=True, null=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ("first_name","password")
+    
+    objects = CustomUserManager()    
+
 
 class Sign(models.Model):
 
@@ -40,7 +69,7 @@ class Video(models.Model):
     
     id = models.UUIDField(primary_key=True, editable=False, unique = True, default = uuid.uuid4())
     name = models.CharField(help_text="Coloque o nome do sinal que você está criando")
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     media = models.FileField(upload_to="uploads/", help_text="Coloque o arquivo que deseja subir")
     knowledge_sector = models.CharField(choices=KNOWLEDGE_SECTOR_ENUM, help_text="De que área esse conhecimento é pertencente")
     sign = models.ForeignKey(Sign, on_delete=models.CASCADE, help_text="Qual é o sinal do video")
@@ -48,3 +77,6 @@ class Video(models.Model):
      
     def __str__(self) -> None:
         return f"[ {self.knowledge_sector} ] - {self.name}"
+    
+    
+    
