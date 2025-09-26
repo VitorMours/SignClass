@@ -2,13 +2,12 @@ asgiref==3.9.1
 bidict==0.23.1
 blinker==1.9.0
 click==8.2.1
+colorama==0.4.6
 Django==5.2.5
 django-cors-headers==4.7.0
 djangorestframework==3.16.1
-drf-nested-routers==0.94.2
+djangorestframework_simplejwt==5.5.1
 drf-yasg==1.21.10
-Flask==3.1.1
-Flask-SocketIO==5.5.1
 h11==0.16.0
 inflection==0.5.1
 iniconfig==2.1.0
@@ -19,6 +18,7 @@ packaging==25.0
 pluggy==1.6.0
 psycopg2-binary==2.9.10
 Pygments==2.19.2
+PyJWT==2.10.1
 pytest==8.4.1
 pytest-django==4.11.1
 python-engineio==4.12.2
