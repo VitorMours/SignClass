@@ -54,13 +54,16 @@ class TestCustomUserManager(TestCase):
         module = importlib.import_module("api.models")
         class_ = module.CustomUserManager
         signature = inspect.signature(class_.create_superuser)
-        # TODO: Finish this test
+        actual_params = set(signature.parameters.keys())
+        expected_params = set(self.create_user_method_signature)
+        self.assertEqual(actual_params, expected_params)
         
-    # def test_create_superuser_method_with_wrong_data(self) -> None:
-    #     module = importlib.import_module("api.models")
-    #     custom_user = get_user_model()
-    #     new_super_user = custom_user.objects.create_superuser()
-    
+    def test_create_superuser_method_with_wrong_data(self) -> None:
+        module = importlib.import_module("api.models")
+        custom_user = get_user_model()
+        new_super_user = custom_user.objects.create_superuser("vitor.lucas@gmail.com","32322916aA!","Vitor")
+        self.assertEqual(type(new_super_user), model.CustomUser)
+        self.assertTrue(new_super_user.is_superuser)
     
     
 class TestUserModel(TestCase):

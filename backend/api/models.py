@@ -11,16 +11,37 @@ class CustomUserManager(UserManager):
             raise ValueError(_("A required value was not passed"))
         
         email = self.normalize_email(email)
+        
+
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+                
         user = self.model(
             first_name= first_name,
             last_name=last_name,
             email=email, **extra_fields)
-        
+
         user.set_password(password)
         user.save(using=self._db)
         return user
     
-    # def create_superuser()
+    def create_superuser(self, email, password, first_name, last_name=None, **extra_fields):
+        if not email or not password or not first_name:
+            raise ValueError(_("A required value was not passed"))
+        
+        email = self.normalize_email(email)
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        user = self.model(
+            first_name = first_name,
+            last_name = last_name,
+            email = email, **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
 
 class CustomUser(AbstractUser, PermissionsMixin):
     username = None
