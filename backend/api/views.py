@@ -1,3 +1,15 @@
 from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-# Create your views here.
+from .serializers import CustomTokenObtainPairSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    
+class UserView(APIView):
+    """
+        View to the user model 
+    """
+    
+    # TODO: Fazer essa visualização quando chegar em casa
