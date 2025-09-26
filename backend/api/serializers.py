@@ -34,3 +34,8 @@ class UserSerializer(serializers.ModelSerializer):
         
         
 # FIXME: Precisa ser dois serializer, um para quando ler os dados e um para quando enviar os dados
+
+class UserGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User 
+        fields = ["id","first_name","last_name","email","is_staff","is_superuser"]
