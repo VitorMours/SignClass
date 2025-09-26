@@ -11,3 +11,5 @@ class UserView(APIView):
     """
         View to the user model 
     """
+    
+    # TODO: Fazer essa visualização quando chegar em casa
