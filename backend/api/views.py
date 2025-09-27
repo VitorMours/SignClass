@@ -8,7 +8,6 @@ from .serializers import CustomTokenObtainPairSerializer, UserSerializer, UserGe
 
 User = get_user_model()
 
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
@@ -69,3 +68,7 @@ class UserView(APIView):
             {"message": "Dados inválidos", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
         )
+        
+        
+        
+# class SignView()

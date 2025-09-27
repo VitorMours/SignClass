@@ -40,7 +40,6 @@ class TestGetUserSerializer(TestCase):
         module = importlib.import_module("api.serializers")
         self.assertTrue(issubclass(module.UserGetSerializer, serializers.ModelSerializer))        
         
-        
     def test_user_get_serializer_meta_fields(self) -> None:
         module = importlib.import_module("api.serializers")
         class_ = module.UserGetSerializer

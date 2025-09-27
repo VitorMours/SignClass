@@ -2,6 +2,7 @@ from django.test import TestCase
 import inspect 
 import importlib 
 from rest_framework import views
+
 class TestViews(TestCase):
     def setUp(self) -> None:
         pass 
@@ -27,3 +28,14 @@ class TestViews(TestCase):
         class_ = module.UserView
         signature = inspect.signature(class_.get)
         self.assertTrue("request" in signature.parameters.keys())  
+        
+    def test_if_user_view_have_post_method(self) -> None:
+        module = importlib.import_module("api.views")
+        class_ = module.UserView 
+        self.assertTrue(hasattr(class_, "post"))
+        
+    def test_if_user_view_post_have_correct_signature(self) -> None:
+        module = importlib.import_module("api.views")
+        class_ = module.UserView
+        signature = inspect.signature(class_.post)
+        self.assertTrue("request" in signature.parameters.keys())
