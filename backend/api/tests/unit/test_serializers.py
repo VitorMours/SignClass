@@ -47,3 +47,49 @@ class TestGetUserSerializer(TestCase):
         self.assertTrue(hasattr(class_.Meta, 'model'))
         self.assertTrue(hasattr(class_.Meta, 'fields'))
         
+        
+class TestSignSerializer(TestCase):
+    def setUp(self) -> None:
+        pass 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_serializer_is_importable(self) -> None:
+        module = importlib.import_module("api.serializers")
+        self.assertTrue(hasattr(module, "SignSerializer"))
+        
+    def test_if_class_is_from_the_correct_subclass(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.SignSerializer
+        self.assertTrue(issubclass(class_, serializers.ModelSerializer))
+        
+    def test_if_class_have_meta_configuration_and_model(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.SignSerializer
+        self.assertTrue(hasattr(class_, 'Meta'))
+        self.assertTrue(hasattr(class_.Meta, 'model'))
+        self.assertTrue(hasattr(class_.Meta, 'fields'))
+        
+class TestGetSignSerializer(TestCase):
+    def setUp(self) -> None:
+        pass 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_serializer_is_importable(self) -> None:
+        module = importlib.import_module("api.serializers")
+        self.assertTrue(hasattr(module, "SignGetSerializer"))
+        
+    def test_if_class_is_from_the_correct_subclass(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.SignGetSerializer
+        self.assertTrue(issubclass(class_, serializers.ModelSerializer))
+        
+    def test_if_class_have_meta_configuration_and_model(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.SignGetSerializer
+        self.assertTrue(hasattr(class_, 'Meta'))
+        self.assertTrue(hasattr(class_.Meta, 'model'))
+        self.assertTrue(hasattr(class_.Meta, 'fields'))

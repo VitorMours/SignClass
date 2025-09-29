@@ -2,6 +2,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from .models import Sign
 
 User = get_user_model()
 
@@ -31,10 +32,19 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["first_name","last_name","email","password","is_staff", "is_superuser"]
-        
-        
 
 class UserGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = User 
         fields = ["id","first_name","last_name","email","is_staff","is_superuser"]
+        
+        
+class SignGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sign 
+        fields = ["id","name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation"]
+class SignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sign 
+        fields = ["name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation"]
+        

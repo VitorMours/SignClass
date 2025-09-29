@@ -4,7 +4,16 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer, UserSerializer, UserGetSerializer
+from .serializers import (
+        CustomTokenObtainPairSerializer,
+        UserSerializer,
+        UserGetSerializer,
+        SignGetSerializer,
+        SignSerializer
+    )
+from .models import Sign, Video
+
+
 
 User = get_user_model()
 
@@ -27,7 +36,11 @@ class UserView(APIView):
         serializer = UserGetSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
     def post(self, request, format=None):
+        """
+        Create a new user
+        """
         data = request.data.copy()
 
         password = data.get("password")
@@ -40,14 +53,16 @@ class UserView(APIView):
         serializer = UserSerializer(data=data, many=False)
         if serializer.is_valid():
             try:
+                print(serializer.data)
                 new_user = User(
                     first_name=serializer.validated_data.get("first_name"),
                     last_name=serializer.validated_data.get("last_name"),
                     email=serializer.validated_data.get("email"),
+                    is_staff=serializer.validated_data.get("is_staff"),
+                    is_superuser=serializer.validated_data.get("is_superuser")
                 )
 
                 new_user.set_password(serializer.validated_data.get("password"))
-
                 new_user.save()
 
                 return Response(
@@ -71,4 +86,13 @@ class UserView(APIView):
         
         
         
-# class SignView()
+class SignView(APIView):
+    def get(self, request) -> Response:
+        signs = Sign.objects.all()
+        serialized_data = SignGetSerializer(signs, many=True)
+        return Response(serialized_data.data, status= status.HTTP_200_OK)
+    
+    
+    # TODO: Implementar método de criação de Sinais
+    def post(self, request) -> Response:
+        pass
