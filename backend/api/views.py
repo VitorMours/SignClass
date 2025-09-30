@@ -88,6 +88,9 @@ class UserView(APIView):
         
 class SignView(APIView):
     def get(self, request) -> Response:
+        """
+        Get all the signs and the signs data
+        """
         signs = Sign.objects.all()
         serialized_data = SignGetSerializer(signs, many=True)
         return Response(serialized_data.data, status= status.HTTP_200_OK)
