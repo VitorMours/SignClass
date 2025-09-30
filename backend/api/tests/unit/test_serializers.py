@@ -93,3 +93,57 @@ class TestGetSignSerializer(TestCase):
         self.assertTrue(hasattr(class_, 'Meta'))
         self.assertTrue(hasattr(class_.Meta, 'model'))
         self.assertTrue(hasattr(class_.Meta, 'fields'))
+        
+        
+        
+class TestVideoSerializer(TestCase):
+    def setUp(self) -> None:
+        pass
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_can_import_video_serializer(self) -> None:
+        module = importlib.import_module("api.serializers")
+        self.assertTrue(hasattr(module, "VideoSerializer"))
+        
+    def test_if_video_serializer_is_correct_subclass(self) -> None:
+        module = importlib.import_module("api.serializers")
+        self.assertTrue(issubclass(module.VideoSerializer, serializers.ModelSerializer))
+        
+    def test_if_video_serializer_have_meta_class(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.VideoSerializer
+        self.assertTrue(hasattr(class_, "Meta"))
+        
+        
+    def test_if_meta_class_have_the_correct_configuration(self) -> None: 
+        module = importlib.import_module("api.serializers")
+        class_ = module.VideoSerializer
+        self.assertTrue(hasattr(class_, 'Meta'))
+        self.assertTrue(hasattr(class_.Meta, 'model'))
+        self.assertTrue(hasattr(class_.Meta, 'fields'))
+        
+class TestVideoGetSerializer(TestCase):
+    def setUp(self) -> None:
+        pass 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_class_exists_in_module(self) -> None:
+        module = importlib.import_module("api.serializers")
+        self.assertTrue(hasattr(module, "VideoGetSerializer"))
+        
+    def test_if_class_is_correct_subclass(self) -> None: 
+        module = importlib.import_module("api.serializers")
+        class_ = module.VideoGetSerializer
+        self.assertTrue(issubclass(class_, serializers.ModelSerializer))
+        
+    def test_if_class_have_correct_meta_fields(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.VideoGetSerializer
+        self.assertTrue(hasattr(class_, 'Meta'))
+        self.assertTrue(hasattr(class_.Meta, 'model'))
+        self.assertTrue(hasattr(class_.Meta, 'fields'))
+        

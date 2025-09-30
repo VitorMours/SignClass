@@ -2,7 +2,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import Sign
+from .models import Sign, Video
 
 User = get_user_model()
 
@@ -48,3 +48,12 @@ class SignSerializer(serializers.ModelSerializer):
         model = Sign 
         fields = ["name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation"]
         
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video 
+        fields = ["name","owner","media","knowledge_sector","sign"]
+        
+class VideoGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video 
+        fields = ["id","name","owner","media","knowledge_sector","sign"]

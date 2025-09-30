@@ -16,6 +16,8 @@ class TestAuthUrls(TestCase):
         response = self.client.get("/api/auth/token")
         self.assertTrue(response.status_code == 301)
         
+        
+# Lucas
 class TestUrls(TestCase):
     def setUp(self) -> None:
         self.client = Client()
@@ -36,5 +38,4 @@ class TestUrls(TestCase):
     def test_if_user_route_returns_json(self) -> None:
         response = self.client.get("/api/users/")
         data = response.content.decode("utf-8")
-        print(type(data))
         # TODO: Verificar como transformar em json
