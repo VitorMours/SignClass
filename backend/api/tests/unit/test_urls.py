@@ -3,18 +3,18 @@ from django.test import TestCase, Client
 
 class TestAuthUrls(TestCase):
     def setUp(self) -> None:
-        pass 
+        self.client = Client()
     
     def test_if_is_running(self) -> None:
         self.assertTrue(True)
         
     def test_if_auth_token_route_exists(self) -> None:
         response = self.client.get("/api/auth/token/")
-        self.assertTrue(response.status_code == 405)
+        self.assertEqual(response.status_code, 405)
         
     def test_if_auth_token_route_redirect_correctly(self) -> None:
         response = self.client.get("/api/auth/token")
-        self.assertTrue(response.status_code == 301)
+        self.assertEqual(response.status_code, 301)
         
         
 # Lucas
@@ -27,7 +27,7 @@ class TestUrls(TestCase):
         
     def test_if_users_route_exists(self) -> None:
         response = self.client.get("/api/users/")
-        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.status_code, 200)
         
     def test_if_users_route_block_wrong_http_verbs(self) -> None:
         put_response = self.client.put("/api/users/")
@@ -37,5 +37,7 @@ class TestUrls(TestCase):
         
     def test_if_user_route_returns_json(self) -> None:
         response = self.client.get("/api/users/")
-        data = response.content.decode("utf-8")
-        # TODO: Verificar como transformar em json
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Content-Type'], 'application/json')
+        data = response.json()
+        self.assertIsInstance(data, list)
