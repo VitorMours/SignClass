@@ -162,7 +162,7 @@ class TestSignModel(TestCase):
         
 class TestVideoModel(TestCase):
     def setUp(self) -> None:
-        self.model_fields = ["id","name","owner","media","knowledge_sector"]
+        self.model_fields = ["id","name","owner","media","knowledge_sector","media_filename"]
         
     def test_if_running(self) -> None:
         self.assertTrue(True)
@@ -188,6 +188,7 @@ class TestVideoModel(TestCase):
         self.assertIsInstance(model.Video._meta.get_field("name"), models.CharField)
         self.assertIsInstance(model.Video._meta.get_field("owner"), models.ForeignKey)
         self.assertIsInstance(model.Video._meta.get_field("media"), models.FileField)
+        self.assertIsInstance(model.Video._meta.get_field("media_filename"), models.CharField)
         self.assertIsInstance(model.Video._meta.get_field("knowledge_sector"), models.CharField)
 
     def test_if_model_media_have_the_correct_config(self) -> None:

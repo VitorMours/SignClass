@@ -116,6 +116,12 @@ class TestVideoSerializer(TestCase):
         class_ = module.VideoSerializer
         self.assertTrue(hasattr(class_, "Meta"))
         
+    def test_if_media_filename_is_read_only(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.VideoSerializer
+        readonly_list = class_.Meta.read_only_fields
+        self.assertTrue("media_filename" in readonly_list)
+        
         
     def test_if_meta_class_have_the_correct_configuration(self) -> None: 
         module = importlib.import_module("api.serializers")

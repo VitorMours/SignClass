@@ -52,7 +52,7 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video 
         fields = ["name","owner","media","knowledge_sector","sign"]
-        
+        read_only_fields = ["media_filename"]
 class VideoGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video 

@@ -92,8 +92,9 @@ class Video(models.Model):
     name = models.CharField(help_text="Coloque o nome do sinal que você está criando")
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     media = models.FileField(upload_to="uploads/", help_text="Coloque o arquivo que deseja subir")
+    media_filename = models.CharField(max_length=255, blank=True, help_text="nome do arquivo que vai ficar dentro do banco de dados")
     knowledge_sector = models.CharField(choices=KNOWLEDGE_SECTOR_ENUM, help_text="De que área esse conhecimento é pertencente")
-    sign = models.ForeignKey(Sign, on_delete=models.CASCADE, help_text="Qual é o sinal do video")
+    sign = models.ForeignKey(Sign, on_delete=models.CASCADE, help_text="Qual é o sinal do video", null=False, blank=False)
     
      
     def __str__(self) -> None:
