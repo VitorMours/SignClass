@@ -84,6 +84,31 @@ class UserView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
         
+class UserDetailView(APIView):
+    
+    serializer_class = UserGetSerializer
+    
+    def get(self, request, pk, format=None) -> Response:
+        """
+        Getting a specific user mading the search with his id
+        """
+        try: 
+            user = User.objects.get(id=pk)
+            serialized = UserGetSerializer(user, many=False)
+
+            return Response(
+                {
+                    "message":"User Founded",
+                    "user":serialized.data
+                }, 
+                status=status.HTTP_302_FOUND) 
+        except:
+            return Response(
+                {"message":"User Not Found"}, 
+                status=status.HTTP_404_NOT_FOUND
+                )
+        
+        
 class SignView(APIView):
     
     serializer_class = SignSerializer

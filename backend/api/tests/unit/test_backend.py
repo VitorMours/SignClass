@@ -14,7 +14,6 @@ class TestEmailBackend(TestCase):
             "request",
             "email",
             "password",
-            "token"
         ] 
     
     

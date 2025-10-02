@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-
+import importlib
 
 class TestAuthUrls(TestCase):
     def setUp(self) -> None:
@@ -17,8 +17,7 @@ class TestAuthUrls(TestCase):
         self.assertEqual(response.status_code, 301)
         
         
-# Lucas
-class TestUrls(TestCase):
+class TestUserUrls(TestCase):
     def setUp(self) -> None:
         self.client = Client()
     
@@ -41,3 +40,13 @@ class TestUrls(TestCase):
         self.assertEqual(response.headers['Content-Type'], 'application/json')
         data = response.json()
         self.assertIsInstance(data, list)
+    
+    def test_if_single_user_route_exists(self) -> None:
+        module = importlib.import_module("api.urls")
+        url_patterns = module.urlpatterns
+        exists = False
+        for path in url_patterns:
+            if path.name == "singular_user":
+                exists = True
+                break
+        self.assertTrue(exists)

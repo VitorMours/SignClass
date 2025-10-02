@@ -10,6 +10,7 @@ class TestUserSerializer(TestCase):
     
     def setUp(self) -> None:
         pass
+    
     def test_is_running(self) -> None:
         self.assertTrue(True)
         
@@ -27,6 +28,7 @@ class TestUserSerializer(TestCase):
         self.assertTrue(hasattr(class_, 'Meta'))
         self.assertTrue(hasattr(class_.Meta, 'model'))
         self.assertTrue(hasattr(class_.Meta, 'fields'))
+    
         
         
 class TestGetUserSerializer(TestCase):

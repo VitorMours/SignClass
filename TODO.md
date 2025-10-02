@@ -1,0 +1,1 @@
+- [ ] **01/10/2025 - [fix]** - Adicionar help_text dentro dos modelos de sinais para facilitar a inserção quando for ser feita pela api de maneira manual, ou dentro da interface administrativa 
