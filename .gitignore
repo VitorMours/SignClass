@@ -1,2 +1,218 @@
-venv
-node_modules
+# Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database
+*.sqlite3
+*.db
+*.mdb
+
+# Django migrations (descomente se quiser versionar migrations)
+# !/apps/*/migrations/
+# /apps/*/migrations/*.py
+# !/apps/*/migrations/__init__.py
+
+# Static files
+/staticfiles/
+/mediafiles/
+/static/
+/media/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+/nose-test-results/
+
+# Production
+/build/
+/dist/
+*.egg-info/
+
+# Frontend (geral)
+/node_modules/
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+
+# Frontend - Build outputs
+/frontend/dist/
+/frontend/build/
+/frontend/.next/
+/frontend/out/
+
+# Frontend - Dependencies
+/frontend/node_modules/
+/frontend/.pnpm-store/
+
+# Frontend - Cache
+/frontend/.nuxt/
+/frontend/.cache/
+/frontend/.parcel-cache/
+
+# Frontend - Framework specific
+/frontend/.svelte-kit/
+
+# React
+/frontend/.eslintcache
+
+# Vue.js
+/frontend/dist-ssr/
+
+# Svelte
+/frontend/build/
+
+# Angular
+/frontend/.angular/
+
+# Package manager locks (descomente conforme necessário)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Environment variables do frontend
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# Logs do frontend
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/lerna-debug.log*
+
+# Runtime data
+/frontend/pids
+/frontend/*.pid
+/frontend/*.seed
+/frontend/*.pid.lock
+
+# Coverage directory used by tools like istanbul
+/frontend/coverage
+/frontend/*.lcov
+
+# nyc test coverage
+/frontend/.nyc_output
+
+# Dependency directories
+/frontend/node_modules/
+/frontend/jspm_packages/
+
+# TypeScript cache
+/frontend/*.tsbuildinfo
+
+# Optional npm cache directory
+/frontend/.npm
+
+# Optional eslint cache
+/frontend/.eslintcache
+
+# Microbundle cache
+/frontend/.rpt2_cache/
+/frontend/.rts2_cache_cjs/
+/frontend/.rts2_cache_es/
+/frontend/.rts2_cache_umd/
+
+# Optional REPL history
+/frontend/.node_repl_history
+
+# Output of 'npm pack'
+/frontend/*.tgz
+
+# Yarn Integrity file
+/frontend/.yarn-integrity
+
+# dotenv environment variables file
+/frontend/.env
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# parcel-bundler cache (https://parceljs.org/)
+/frontend/.cache
+/frontend/.parcel-cache
+
+# Next.js build output
+/frontend/.next
+/frontend/out
+
+# Nuxt.js build / generate output
+/frontend/.nuxt
+/frontend/dist
+
+# Gatsby files
+/frontend/.cache/
+/frontend/public
+
+# Vuepress build output
+/frontend/.vuepress/dist
+
+# Serverless directories
+/frontend/.serverless/
+
+# FuseBox cache
+/frontend/.fusebox/
+
+# DynamoDB Local files
+/frontend/.dynamodb/
+
+# TernJS port file
+/frontend/.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+/frontend.vscode-test
+
+# PyCharm
+.idea/
+
+# macOS
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+[Tt]humbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.trash-*
