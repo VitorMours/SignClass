@@ -6,13 +6,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from ..serializers import (
-        CustomTokenObtainPairSerializer,
         UserSerializer,
         UserGetSerializer,
-        SignGetSerializer,
-        SignSerializer,
-        VideoGetSerializer,
-        VideoSerializer
     )
 from ..models import Sign, Video
 from .. import utils

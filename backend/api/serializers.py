@@ -24,7 +24,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("Usuário Inexistente")
         
         data = super().validate(attrs)
-        data["user_id"] = user.id
+        data["status"] = "success"
         data["email"] = user.email
         return data
     

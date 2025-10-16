@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 import importlib
-
+import json
 class TestAuthUrls(TestCase):
     def setUp(self) -> None:
         self.client = Client()
@@ -8,14 +8,28 @@ class TestAuthUrls(TestCase):
     def test_if_is_running(self) -> None:
         self.assertTrue(True)
         
-    def test_if_auth_token_route_exists(self) -> None:
-        response = self.client.post("/api/auth/token")
+    def test_if_auth_login_route_exists(self) -> None:
+        response = self.client.post("/api/auth/login")
         self.assertEqual(response.status_code, 400)
         
-    def test_if_auth_token_route_returns_not_found(self) -> None:
-        response = self.client.get("/api/auth/token/")
+    def test_if_auth_login_route_returns_not_found(self) -> None:
+        response = self.client.get("/api/auth/login/")
         self.assertEqual(response.status_code, 404)
         
+    def test_if_auth_login_route_return_forbidden_method(self) -> None:
+        response = self.client.put("/api/auth/login")
+        self.assertEqual(response.status_code, 405)
+        
+    def test_auth_login_response_with_body(self) -> None:
+        data = {"email": "jvrezendemoura@gmail.com", "password": "32322916aA!"}
+        response = self.client.post("/api/auth/login", 
+                                json=data)
+        self.assertEqual(response.status_code, 200)
+        
+        response_data = response.json()
+        self.assertEqual(response_data["status"], "success")
+        self.assertIn("token", response_data)
+        self.assertIn("user", response_data)
         
 class TestUserUrls(TestCase):
     def setUp(self) -> None:
