@@ -9,14 +9,16 @@ class TestAuthUrls(TestCase):
         self.assertTrue(True)
         
     def test_if_auth_token_route_exists(self) -> None:
-        response = self.client.post("/api/auth/token")
+        response = self.client.post("/api/auth/login")
         self.assertEqual(response.status_code, 400)
         
     def test_if_auth_token_route_returns_not_found(self) -> None:
-        response = self.client.get("/api/auth/token/")
+        response = self.client.get("/api/auth/login/")
         self.assertEqual(response.status_code, 404)
         
-        
+    def test_if_auth_token_return_200_sucess_in_message(self) -> None:
+        #response = self.client.get|()
+        pass
 class TestUserUrls(TestCase):
     def setUp(self) -> None:
         self.client = Client()

@@ -41,4 +41,14 @@ class TestSignViews(TestCase):
         class_ = module.SignView
         signature = inspect.signature(class_.post)
         self.assertTrue("request" in signature.parameters.keys())
+
+    def test_if_sign_view_have_authentication_classes(self) -> None:
+        module = importlib.import_module("api.views.sign_views")
+        class_ = module.SignView 
+        self.assertTrue(hasattr(class_, "authentication_classes"))
+        
+    def test_if_sign_view_have_permission_classes(self) -> None:
+        module = importlib.import_module("api.views.sign_views")
+        class_ = module.SignView 
+        self.assertTrue(hasattr(class_, "permission_classes"))        
         

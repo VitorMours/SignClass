@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from rest_framework.response import Response
 from ..serializers import ( SignGetSerializer, SignSerializer )
@@ -8,7 +10,8 @@ from ..models import Sign
 User = get_user_model()
     
 class SignView(APIView):
-    
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
     serializer_class = SignSerializer
     
     def get(self, request, format=None) -> Response:
