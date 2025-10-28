@@ -13,6 +13,11 @@ from .. import utils
 User = get_user_model()
          
 class VideoView(APIView):
+    """
+    Resource feito para pegar todos os vídeos possiveis 
+    sem qualquer tipo de distinção entre eles    
+
+    """
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = VideoSerializer
     
@@ -105,3 +110,8 @@ class VideoView(APIView):
                 }, 
                 status=status.HTTP_400_BAD_REQUEST
             )           
+
+
+class VideoKnowledgeSectorView(APIView):
+    def get(self) -> None:
+        pass

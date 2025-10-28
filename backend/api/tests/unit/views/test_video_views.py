@@ -46,3 +46,11 @@ class TestVideoViews(TestCase):
         class_ = module.VideoView
         signature = inspect.signature(class_.post)
         self.assertTrue("request" in signature.parameters.keys())
+
+
+class TestVideoKnowledgeSectorView(TestCase):
+    def setUp(self) -> None:
+        pass 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)

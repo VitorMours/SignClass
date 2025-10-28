@@ -20,11 +20,10 @@ class Command(BaseCommand):
             questions = [
                 inquirer.List(
                     'action',
-                    message="O que você gostaria de fazer?",
+                    message="Escolha uma das opções abaixo",
                     choices=[
-                        ('Criar usuários fake', 'create_users'),
-                        ('Criar dados do modelo', 'create_models'),
-                        ('Limpar dados', 'clean_data'),
+                        ('Popular o banco de dados fake', 'create_users'),
+                        ('Limpar dados do banco de dados', 'clean_data'),
                         ('Sair', 'exit'),
                     ],
                 ),
@@ -34,8 +33,6 @@ class Command(BaseCommand):
             
             if answers['action'] == 'create_users':
                 self.create_fake_users()
-            elif answers['action'] == 'create_models':
-                self.create_fake_models()
             elif answers['action'] == 'clean_data':
                 self.clean_data()
             elif answers['action'] == 'exit':
