@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -15,10 +17,8 @@ User = get_user_model()
 
 class UserView(APIView):
     """
-    View to the custom user model inside of the application,
-    can be used to the CRUD basic actions of the resource in 
-    the database, can also be used to filtering necessities 
-    of the user in the database
+    View to the custom user model inside of the application, can be used to the CRUD basic actions of the resource in the database, can also be used to filtering necessities of the user in 
+    the database
     """
 
     serializer_class = UserSerializer
@@ -64,7 +64,8 @@ class UserView(APIView):
                 }, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+    
+    @action(detail=False, permission_classes=[IsAdminUser])
     def post(self, request, format=None):
         """
         Create a new user

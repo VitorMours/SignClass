@@ -17,8 +17,20 @@ class TestAuthUrls(TestCase):
         self.assertEqual(response.status_code, 404)
         
     def test_if_auth_token_return_200_sucess_in_message(self) -> None:
-        #response = self.client.get|()
+        pass 
+    
+    def test_if_signin_route_exists(self) -> None:
+        response = self.client.get("/api/auth/signup")
+        self.assertEqual(response.status_code, 405)
+
+    def test_if_signin_route_can_return_not_found(self) -> None:
+        response = self.client.get("/api/auth/signup/")
+        self.assertEqual(response.status_code, 404)
+        
+    def test_if_can_pass_data_in_body_for_signin_route(self) -> None:
         pass
+
+
 class TestUserUrls(TestCase):
     def setUp(self) -> None:
         self.client = Client()
@@ -52,3 +64,32 @@ class TestUserUrls(TestCase):
                 exists = True
                 break
         self.assertTrue(exists)
+        
+        
+class TestVideoUrls(TestCase): 
+    def setUp(self) -> None:
+        self.client = Client() 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_can_call_url(self) -> None:
+        response = self.client.get("/api/videos")
+        self.assertEqual(response.status_code, 200)
+    
+    def test_if_can_post_url_without_body(self) -> None:
+        response = self.client.post("/api/videos")
+        self.assertEqual(response.status_code, 400)
+    
+    def test_if_can_post_url_with_body(self) -> None:
+        pass
+    
+    def test_if_can_update_the_url(self) -> None:
+        response = self.client.put("/api/videos")
+        self.assertEqual(response.status_code, 405)
+        
+    def test_if_can_delete_the_url(self) -> None:
+        response = self.client.delete("/api/videos")
+        self.assertEqual(response.status_code, 405)
+        
+        
