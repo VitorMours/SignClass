@@ -10,9 +10,9 @@ from ..models import Sign
 User = get_user_model()
     
 class SignView(APIView):
+    serializer_class = SignSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
-    serializer_class = SignSerializer
     
     def get(self, request, format=None) -> Response:
         """

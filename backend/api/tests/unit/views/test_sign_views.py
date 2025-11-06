@@ -2,7 +2,9 @@ from django.test import TestCase
 import inspect 
 import importlib 
 from rest_framework import views
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from api.serializers import VideoSerializer, UserGetSerializer
+
 
 class TestSignViews(TestCase):
     def setUp(self) -> None:
@@ -46,7 +48,14 @@ class TestSignViews(TestCase):
         module = importlib.import_module("api.views.sign_views")
         class_ = module.SignView 
         self.assertTrue(hasattr(class_, "authentication_classes"))
-        
+       
+    def test_if_sign_view_have_authentication_classes(self) -> None:
+        module = importlib.import_module("api.views.sign_views")
+        class_ = module.SignView.authentication_classes 
+        self.assertIn(JWTAuthentication, class_)
+       
+
+
     def test_if_sign_view_have_permission_classes(self) -> None:
         module = importlib.import_module("api.views.sign_views")
         class_ = module.SignView 
