@@ -2,7 +2,7 @@
 <p align="center">
   <a href="https://go-skill-icons.vercel.app/">
     <img
-      src="https://go-skill-icons.vercel.app/api/icons?i=mysql,docker,django,api,djangorestframework,postman,react,jwt&theme=dark"
+      src="https://go-skill-icons.vercel.app/api/icons?i=mysql,docker,django,api,djangorestframework,postman,react,jwt,materialui,typescript&theme=dark"
     />
 
   </a>
