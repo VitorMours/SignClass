@@ -69,7 +69,7 @@ ROOT_URLCONF = 'backend.urls'
 # TODO: Precisa fazer esse backend de authenticação do zero
 # Authentication settings
 AUTHENTICATION_BACKENDS = [
-    "api.backend.EmailBackend"
+    "api.backend.EmailBackend",
     'django.contrib.auth.backends.ModelBackend'
 ]
 
