@@ -45,7 +45,6 @@ const SigninPage: React.FC = () => {
       })
 
       if(signUpResponse.ok && loginResponse.ok && loginResponse.data.access ){
-        // TODO: Precisa autenticar o usuario antes de vagear ele
         navigate("/dashboard");
       } else {
         console.log('Falha no login:')

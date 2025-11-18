@@ -68,7 +68,7 @@ class TestCustomUserManager(TestCase):
     
 class TestUserModel(TestCase):
     def setUp(self) -> None:
-        self.required_fields = ("first_name","password")
+        self.required_fields = ("first_name","password","last_name")
         
     def test_if_is_running(self) -> None:
         self.assertTrue(True)

@@ -32,6 +32,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["first_name","last_name","email","password","is_staff", "is_superuser"]
+        extra_kwargs = {
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+            'email': {'required': True},
+            'password': {'required': True, 'write_only': True}
+        }
 
 class UserGetSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,7 +52,7 @@ class SignGetSerializer(serializers.ModelSerializer):
 class SignSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sign 
-        fields = ["name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation"]
+        fields = ["name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation", "owner"]
         
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,3 +63,6 @@ class VideoGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video 
         fields = ["id","name","owner","media","knowledge_sector","sign"]
+        
+        
+        

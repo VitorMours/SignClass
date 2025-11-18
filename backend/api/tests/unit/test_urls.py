@@ -93,3 +93,27 @@ class TestVideoUrls(TestCase):
         self.assertEqual(response.status_code, 405)
         
         
+        
+        
+class TestSignUrls(TestCase):
+    def setUp(self) -> None:
+        self.client = Client() 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_can_call_url(self) -> None:
+        response = self.client.get("/api/signs")
+        self.assertEqual(response.status_code, 401)
+    
+    def test_if_can_post_url_without_body(self) -> None:
+        response = self.client.post("/api/signs")
+        self.assertEqual(response.status_code, 401)
+    
+    def test_if_can_update_the_url(self) -> None:
+        response = self.client.put("/api/signs")
+        self.assertEqual(response.status_code, 401)
+        
+    def test_if_can_delete_the_url(self) -> None:
+        response = self.client.delete("/api/signs")
+        self.assertEqual(response.status_code, 401)

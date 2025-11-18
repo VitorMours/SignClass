@@ -68,7 +68,7 @@ export const DrawerComponent: React.FC<DrawerProps> = ({
               >
                 <ListItemButton>
                   <ListItemIcon>{item[0]}</ListItemIcon>
-                  <ListItemText primary={item[1]} />
+                  <ListItemText primary={item[1].replace("_", " ")} />
                 </ListItemButton>
               </ListItem>
             </NavLink>

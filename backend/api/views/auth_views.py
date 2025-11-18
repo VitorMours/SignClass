@@ -35,6 +35,7 @@ class SignUpView(APIView):
         de usuarios por meio da rota 
         api/auth/signup
     """
+    serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
     def post(self, request, format=None) -> Response:
@@ -47,25 +48,19 @@ class SignUpView(APIView):
 
         data = request.data.copy()
 
-        password = data.get("password")
-        if not password:
-            return Response(
-                {"password": ["Esse campo é obrigatorio"]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         serializer = UserSerializer(data=data, many=False)
         if serializer.is_valid():
             try:
-                new_user = User(
+                new_user = User.objects.create_user(
                     first_name=serializer.validated_data.get("first_name"),
                     last_name=serializer.validated_data.get("last_name"),
                     email=serializer.validated_data.get("email"),
+                    password=serializer.validated_data.get("password"),
                     is_staff=serializer.validated_data.get("is_staff", False),
                     is_superuser=serializer.validated_data.get("is_superuser", False)
                 )
 
-                new_user.set_password(serializer.validated_data.get("password"))
                 new_user.save()
 
                 return Response(
