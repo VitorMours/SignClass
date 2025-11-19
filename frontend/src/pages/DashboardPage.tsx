@@ -1,5 +1,5 @@
 // DashboardPage.tsx
-import React, { useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import {
   Box,
   CssBaseline,
@@ -13,6 +13,7 @@ import { Camera, Dashboard, Person, Search } from "@mui/icons-material";
 import { LayoutComponent } from "../layout/DashboardLayout";
 import SignCard from "../components/SignCard";
 import useUser from "../hooks/useUser";
+import SignCardSkeleton from "../components/skeleton/SignCardSkeleton";
 
 interface DashboardBarProps {
   title?: string;
@@ -24,6 +25,14 @@ export const DashboardPage: React.FC<DashboardBarProps> = ({
   const theme = useTheme();
   const { user } = useUser();
   const [open, setOpen] = useState(false);
+  const [signals, setSignals] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const LazyComponent = lazy(() => {
+    return new Promise((resolve) => {
+      setTimeout(() => 3000); // delay de 3s
+    });
+  });
 
   function toggleDrawer(newOpen: boolean) {
     setOpen(newOpen);
@@ -36,7 +45,7 @@ export const DashboardPage: React.FC<DashboardBarProps> = ({
     [<Camera />, "Video_Class"],
   ];
 
-  // Função para renderizar os cards
+  // Cards mockados (últimas pesquisas)
   const renderSignCards = () => {
     const cards = [];
     for (let i = 0; i < 10; i++) {
@@ -79,6 +88,7 @@ export const DashboardPage: React.FC<DashboardBarProps> = ({
               width: "100%",
             }}
           >
+            {/* Últimas pesquisas */}
             <Box sx={{ flex: 1, minWidth: 280 }}>
               <Typography
                 variant="h6"
@@ -99,6 +109,7 @@ export const DashboardPage: React.FC<DashboardBarProps> = ({
 
             <Divider orientation="vertical" flexItem />
 
+            {/* Seus sinais */}
             <Box sx={{ flex: 1, minWidth: 280 }}>
               <Typography
                 variant="h6"
@@ -113,7 +124,9 @@ export const DashboardPage: React.FC<DashboardBarProps> = ({
                   gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
                 }}
               >
-                {renderSignCards()}
+                <Suspense fallback={<SignCardSkeleton />}>
+                  <LazyComponent />
+                </Suspense>
               </Box>
             </Box>
           </Box>

@@ -4,8 +4,11 @@ import { Link as RouterLink, useNavigate } from "react-router";
 import FormField from "../components/FormField";
 import Navbar from "../components/NavBar";
 import authService from "../services/authService";
+import useUser from "../hooks/useUser";
+
 
 const SigninPage: React.FC = () => {
+  const user = useUser();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +48,15 @@ const SigninPage: React.FC = () => {
       })
 
       if(signUpResponse.ok && loginResponse.ok && loginResponse.data.access ){
-        navigate("/dashboard");
+        const userData = await authService.authorize(loginResponse);
+
+        if (typeof userData  === 'object'){
+          user.setUser(userData);        
+        } else{
+          user.setUser(null);        
+        }
+        
+        navigate("/home");
       } else {
         console.log('Falha no login:')
       }
