@@ -29,13 +29,12 @@ class SignView(APIView):
         """
         
         data = request.data.copy()
-        
+        print(data) 
         serializer = SignSerializer(data=data, many=False)
         
         if serializer.is_valid():
             try: 
                 owner_id = request.data.get("owner")
-                sign_id = request.data.get("sign")
                 
                 if owner_id:
                     try:
@@ -48,21 +47,6 @@ class SignView(APIView):
                 else:
                     owner = request.user
                 
-                if sign_id:
-                    try:
-                        sign = Sign.objects.get(id=sign_id)
-                    except Sign.DoesNotExist:
-                        return Response(
-                            {"error": "Sign not found"}, 
-                            status=status.HTTP_400_BAD_REQUEST
-                        )
-                else:
-                    return Response(
-                            {"error": "You need to pass a sign"}, 
-                            status=status.HTTP_400_BAD_REQUEST
-                        )
-                
-                
                 new_sign = Sign(
                     name = serializer.validated_data.get("name"),
                     meaning = serializer.validated_data.get("meaning"),
@@ -71,7 +55,7 @@ class SignView(APIView):
                     movement = serializer.validated_data.get("movement"),
                     body_expression  = serializer.validated_data.get("body_expression"),
                     direction_and_orientation = serializer.validated_data.get("direction_and_orientation"),
-                    
+                   owner = serializer.validated_data.get("owner") 
                 )
                 new_sign.save()
                 
@@ -90,11 +74,10 @@ class SignView(APIView):
             {"message": "Dados inválidos", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
         )
-        
+
+
 class UserSignDetailedView(APIView):
-    
-    
-    
+        
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
     

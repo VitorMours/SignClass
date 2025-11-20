@@ -72,7 +72,7 @@ class Sign(models.Model):
     movement = models.CharField()   
     body_expression = models.CharField()
     direction_and_orientation = models.CharField()
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self) -> str:
         return f"{self.name}: {self.meaning}"

@@ -5,7 +5,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from ..serializers import (
         VideoGetSerializer,
-        VideoSerializer
+        VideoSerializer,
+        UserVideosSerializer
     )
 from ..models import Sign, Video
 from .. import utils
@@ -112,6 +113,9 @@ class VideoView(APIView):
             )           
 
 
-class VideoKnowledgeSectorView(APIView):
+class UserVideosView(APIView):
+    
+    serializer_class = UserVideosSerializer
+
     def get(self) -> None:
         pass

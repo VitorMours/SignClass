@@ -48,7 +48,8 @@ class UserGetSerializer(serializers.ModelSerializer):
 class SignGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sign 
-        fields = ["id","name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation"]
+        fields = ["id","name","meaning","hand_configuration","articulation_point","movement","body_expression","direction_and_orientation","owner"]
+
 class SignSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sign 
@@ -59,10 +60,15 @@ class VideoSerializer(serializers.ModelSerializer):
         model = Video 
         fields = ["name","owner","media","knowledge_sector","sign"]
         read_only_fields = ["media_filename"]
+
 class VideoGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video 
         fields = ["id","name","owner","media","knowledge_sector","sign"]
-        
-        
-        
+    
+class UserVideosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video 
+        fields = ["id","name","media","knowledge_sector","sign"]
+
+
