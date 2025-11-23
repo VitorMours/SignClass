@@ -102,3 +102,16 @@ class Video(models.Model):
     
     
     
+class SearchHistoryModel(models.Model):
+    
+    id = models.UUIDField(primary_key=True, null=False, blank=False, unique=True, default=uuid.uuid4())
+    content = models.CharField(null=False, blank=False)
+    date = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False)
+    
+    
+    # def __repr__(self) -> None:
+    #     return "<SearchHistoryModel>"
+    
+    # def __str__(self) -> None:
+    #     return "<SearchHistoryModel>"

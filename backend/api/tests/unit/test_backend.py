@@ -66,4 +66,3 @@ class TestEmailBackend(TestCase):
         module = importlib.import_module("api.backend")
         class_ = module.EmailBackend()
         result = class_.authenticate(request, email="jvrezendemoura@gmail.com", password="32322916aA!")
-        print(result)

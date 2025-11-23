@@ -60,4 +60,21 @@ class SignView(APIView):
         )
         
         
-        # TODO: Adicionar visualziacoes relacionadas a detalhes especificos, e querys por usuario
+        
+class SignDetailView(APIView):
+    
+    serializer_class = SignSerializer
+    
+    def get(self, request, pk, format=None) -> Response:
+        try:
+            signs = Sign.objects.get(id=pk)
+            serialized_data = self.serializer_class(signs)
+            return Response(serialized_data.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": serialized_data.errors},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        
+        

@@ -218,4 +218,45 @@ class TestVideoModel(TestCase):
         video_model = model.Video()
         self.assertTrue(model.Video._meta.get_field("id").unique)
     
+
+class TestSearchHistoryModel(TestCase):
+    def setUp(self) -> None:
+        self.model_fields = ["id","owner","content","date"]
     
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_the_search_history_model_exists(self) -> None:
+        module = importlib.import_module("api.models")
+        self.assertTrue(hasattr(module, "SearchHistoryModel"))
+        
+    def test_if_search_history_model_is_correct_subclass(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.SearchHistoryModel
+        self.assertTrue(issubclass(class_, models.Model))
+        
+    # def test_if_search_history_have_str_representation(self) -> None:
+        # module = importlib.import_module("api.models")
+        # class_ = module.SearchHistoryModel()
+        # self.assertEqual(class_, "<SearchHistoryModel>")
+
+    def test_if_the_search_history_model_have_the_correct_fields(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.SearchHistoryModel
+        for field in self.model_fields:
+            self.assertTrue(hasattr(class_, field))
+        
+        
+    def test_if_the_models_fields_have_correct_type(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.SearchHistoryModel
+        self.assertIsInstance(model.SearchHistoryModel._meta.get_field("id"), models.UUIDField)
+        self.assertIsInstance(model.SearchHistoryModel._meta.get_field("owner"), models.ForeignKey)
+        self.assertIsInstance(model.SearchHistoryModel._meta.get_field("content"), models.CharField)
+        self.assertIsInstance(model.SearchHistoryModel._meta.get_field("date"), models.DateTimeField)
+       
+       
+    def test_id_search_history_model_field_configuration(self) -> None:
+        module = importlib.import_module("api.models")
+        class_ = module.SearchHistoryModel
+        self.assertTrue(class_._meta.get_field('id').unique)
