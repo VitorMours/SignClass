@@ -53,3 +53,25 @@ class TestUserViews(TestCase):
             
     # TODO: Fazer os testes necessarios da classe para prevenir os problemas,
     # tipo post, proibido de fazer        
+
+
+class TestUserViewParams(TestCase):
+    def setUp(self) -> None:
+        pass 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_can_import_the_view(self) -> None:
+        module = importlib.import_module("api.views.user_views")
+        
+        self.assertTrue(hasattr(module, "UserView"))
+        
+    def test_if_user_view_have_get_method(self) -> None:
+        module = importlib.import_module("api.views.user_views")
+        class_ = module.UserView
+        self.assertTrue(hasattr(class_, "get"))
+        
+        
+    def test_if_get_method_can_process_query_parameters(self) -> None:
+        pass

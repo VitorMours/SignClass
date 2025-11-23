@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -9,32 +11,66 @@ from ..serializers import (
         UserSerializer,
         UserGetSerializer,
     )
-from ..models import Sign, Video
-from .. import utils
 
 User = get_user_model()
     
 
 class UserView(APIView):
     """
-    View to the custom user model inside of the application
+    View to the custom user model inside of the application, can be used to the CRUD basic actions of the resource in the database, can also be used to filtering necessities of the user in 
+    the database
     """
 
     serializer_class = UserSerializer
 
     def get(self, request, format=None) -> Response:
         """
-        Return a list with all the users
+        Return a list with all the users or a list 
+        with the users that can pass the query parameters
+        filter properties
+        
+        Args:
+        -----
+                
+        Returns:
+        --------
         """
-        users = User.objects.all()
-        serializer = UserGetSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            if len(self.request.query_params) == 0:
+                users = User.objects.all()
+                
+            else:
+                filter_conditions = {}
+                email = self.request.query_params.get("email", "")
+                first_name = self.request.query_params.get("first_name", "")
+                last_name = self.request.query_params.get("last_name", "")
+                if email:
+                    filter_conditions["email__icontains"] = email
+                if first_name:
+                    filter_conditions["first_name__icontains"] = first_name
+                if last_name:
+                    filter_conditions["last_name__icontains"] = last_name
 
+                users = User.objects.filter(**filter_conditions)      
 
+            serializer = UserGetSerializer(users, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {
+                    "message":"Houve um erro durante o request",
+                    "error":f"{str(e)}"
+                }, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=False, permission_classes=[IsAdminUser])
     def post(self, request, format=None):
         """
         Create a new user
         """
+        
         data = request.data.copy()
 
         password = data.get("password")

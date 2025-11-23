@@ -8,29 +8,29 @@ class TestAuthUrls(TestCase):
     def test_if_is_running(self) -> None:
         self.assertTrue(True)
         
-    def test_if_auth_login_route_exists(self) -> None:
+    def test_if_auth_token_route_exists(self) -> None:
         response = self.client.post("/api/auth/login")
         self.assertEqual(response.status_code, 400)
         
-    def test_if_auth_login_route_returns_not_found(self) -> None:
+    def test_if_auth_token_route_returns_not_found(self) -> None:
         response = self.client.get("/api/auth/login/")
         self.assertEqual(response.status_code, 404)
         
-    def test_if_auth_login_route_return_forbidden_method(self) -> None:
-        response = self.client.put("/api/auth/login")
+    def test_if_auth_token_return_200_sucess_in_message(self) -> None:
+        pass 
+    
+    def test_if_signin_route_exists(self) -> None:
+        response = self.client.get("/api/auth/signup")
         self.assertEqual(response.status_code, 405)
+
+    def test_if_signin_route_can_return_not_found(self) -> None:
+        response = self.client.get("/api/auth/signup/")
+        self.assertEqual(response.status_code, 404)
         
-    def test_auth_login_response_with_body(self) -> None:
-        data = {"email": "jvrezendemoura@gmail.com", "password": "32322916aA!"}
-        response = self.client.post("/api/auth/login", 
-                                json=data)
-        self.assertEqual(response.status_code, 400)
-        
-        response_data = response.json()
-        # self.assertEqual(response_data["status"], "success")
-        # self.assertIn("token", response_data)
-        # self.assertIn("user", response_data)
-        
+    def test_if_can_pass_data_in_body_for_signin_route(self) -> None:
+        pass
+
+
 class TestUserUrls(TestCase):
     def setUp(self) -> None:
         self.client = Client()
@@ -64,3 +64,54 @@ class TestUserUrls(TestCase):
                 exists = True
                 break
         self.assertTrue(exists)
+        
+        
+class TestVideoUrls(TestCase): 
+    def setUp(self) -> None:
+        self.client = Client() 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_can_call_url(self) -> None:
+        response = self.client.get("/api/videos")
+        self.assertEqual(response.status_code, 200)
+    
+    def test_if_can_post_url_without_body(self) -> None:
+        response = self.client.post("/api/videos")
+        self.assertEqual(response.status_code, 400)
+    
+    def test_if_can_post_url_with_body(self) -> None:
+        pass
+    
+    def test_if_can_update_the_url(self) -> None:
+        response = self.client.put("/api/videos")
+        self.assertEqual(response.status_code, 405)
+        
+    def test_if_can_delete_the_url(self) -> None:
+        response = self.client.delete("/api/videos")
+        self.assertEqual(response.status_code, 405)
+
+class TestSignUrls(TestCase):
+    def setUp(self) -> None:
+        self.client = Client() 
+    
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+        
+    def test_if_can_get_app_the_signs(self) -> None:
+        response = self.client.get("/api/signs")
+        self.assertEqual(response.status_code, 200)
+
+    def test_if_other_http_methods_return_error(self) -> None:
+        response_put = self.client.put("/api/signs")
+        self.assertEqual(response_put.status_code, 405)
+        response_delete = self.client.delete("/api/signs")
+        self.assertEqual(response_delete.status_code, 405)
+
+    
+
+
+    
+
+        

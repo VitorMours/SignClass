@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from rest_framework.response import Response
 from ..serializers import ( SignGetSerializer, SignSerializer )
@@ -8,8 +10,9 @@ from ..models import Sign
 User = get_user_model()
     
 class SignView(APIView):
-    
     serializer_class = SignSerializer
+    # authentication_classes=[JWTAuthentication]
+    # permission_classes=[IsAuthenticated]
     
     def get(self, request, format=None) -> Response:
         """
@@ -26,11 +29,24 @@ class SignView(APIView):
         """
         
         data = request.data.copy()
-        
+        print(data) 
         serializer = SignSerializer(data=data, many=False)
         
         if serializer.is_valid():
             try: 
+                owner_id = request.data.get("owner")
+                
+                if owner_id:
+                    try:
+                        owner = User.objects.get(id=owner_id)
+                    except User.DoesNotExist:
+                        return Response(
+                            {"error": "User not found"}, 
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                else:
+                    owner = request.user
+                
                 new_sign = Sign(
                     name = serializer.validated_data.get("name"),
                     meaning = serializer.validated_data.get("meaning"),
@@ -39,7 +55,7 @@ class SignView(APIView):
                     movement = serializer.validated_data.get("movement"),
                     body_expression  = serializer.validated_data.get("body_expression"),
                     direction_and_orientation = serializer.validated_data.get("direction_and_orientation"),
-                    
+                   owner = serializer.validated_data.get("owner") 
                 )
                 new_sign.save()
                 
@@ -58,23 +74,28 @@ class SignView(APIView):
             {"message": "Dados inválidos", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class UserSignDetailedView(APIView):
         
-        
-        
-class SignDetailView(APIView):
-    
-    serializer_class = SignSerializer
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
     
     def get(self, request, pk, format=None) -> Response:
         try:
-            signs = Sign.objects.get(id=pk)
-            serialized_data = self.serializer_class(signs)
-            return Response(serialized_data.data, status=status.HTTP_200_OK)
-        except Exception as e:
+            user = User.objects.get(id=pk)
+            signs = Sign.objects.filter(user=user)
+            serialized = SignGetSerializer(signs, many=True)
             return Response(
-                {"error": serialized_data.errors},
+                {
+                    "message":"Signs Founded",
+                    "signs":serialized.data
+                }, 
+                status=status.HTTP_200_OK
+            )
+            
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found."},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
-        
-        

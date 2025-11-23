@@ -5,7 +5,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from ..serializers import (
         VideoGetSerializer,
-        VideoSerializer
+        VideoSerializer,
+        UserVideosSerializer
     )
 from ..models import Sign, Video
 from .. import utils
@@ -13,6 +14,11 @@ from .. import utils
 User = get_user_model()
          
 class VideoView(APIView):
+    """
+    Resource feito para pegar todos os vídeos possiveis 
+    sem qualquer tipo de distinção entre eles    
+
+    """
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = VideoSerializer
     
@@ -105,3 +111,11 @@ class VideoView(APIView):
                 }, 
                 status=status.HTTP_400_BAD_REQUEST
             )           
+
+
+class UserVideosView(APIView):
+    
+    serializer_class = UserVideosSerializer
+
+    def get(self) -> None:
+        pass

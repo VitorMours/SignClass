@@ -154,4 +154,31 @@ class TestVideoGetSerializer(TestCase):
         self.assertTrue(hasattr(class_, 'Meta'))
         self.assertTrue(hasattr(class_.Meta, 'model'))
         self.assertTrue(hasattr(class_.Meta, 'fields'))
+
+
+
+class TestUserVideosSerializer(TestCase):
+    def setUp(self) -> None:
+        pass 
+
+    def test_if_is_running(self) -> None:
+        self.assertTrue(True)
+
+    def test_if_can_import_the_serializer(self) -> None:
+        module = importlib.import_module("api.serializers")
+        self.assertTrue(hasattr(module, "UserVideosSerializer"))
         
+
+    def test_if_serializer_have_the_correct_super_class(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.UserVideosSerializer
+        self.assertTrue(issubclass(class_, serializers.ModelSerializer))
+
+
+    def test_if_the_serializer_have_the_meta_class(self) -> None:
+        module = importlib.import_module("api.serializers")
+        class_ = module.UserVideosSerializer 
+        self.assertTrue(hasattr(class_, "Meta"))
+
+
+

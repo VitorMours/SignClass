@@ -49,7 +49,7 @@ class CustomUser(AbstractUser, PermissionsMixin):
     last_name = models.CharField(max_length=30, blank=True, null=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ("first_name","password")
+    REQUIRED_FIELDS = ("first_name","password", "last_name")
     
     objects = CustomUserManager()    
 
@@ -72,6 +72,7 @@ class Sign(models.Model):
     movement = models.CharField()   
     body_expression = models.CharField()
     direction_and_orientation = models.CharField()
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self) -> str:
         return f"{self.name}: {self.meaning}"

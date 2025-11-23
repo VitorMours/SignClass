@@ -2,11 +2,15 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User, AbstractUser, UserManager
 from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth import get_user_model
 from django.db import models
 import importlib
 import api.models as model
 import uuid
 import inspect
+
+
+User = get_user_model()
 
 
 class TestCustomUserManager(TestCase):
@@ -30,7 +34,7 @@ class TestCustomUserManager(TestCase):
         class_ = module.CustomUserManager
         self.assertTrue(hasattr(class_, "create_user"))
         
-    def test_if_cusmo_user_manager_have_create_superuser_method(self) -> None:
+    def test_if_custom_user_manager_have_create_superuser_method(self) -> None:
         module = importlib.import_module("api.models")
         class_ = module.CustomUserManager
         self.assertTrue(hasattr(class_, "create_superuser"))
@@ -68,7 +72,7 @@ class TestCustomUserManager(TestCase):
     
 class TestUserModel(TestCase):
     def setUp(self) -> None:
-        self.required_fields = ("first_name","password")
+        self.required_fields = ("first_name","password","last_name")
         
     def test_if_is_running(self) -> None:
         self.assertTrue(True)
@@ -96,12 +100,39 @@ class TestUserModel(TestCase):
     def test_if_string_representation_of_the_model_is_correct(self) -> None:
         module = importlib.import_module("api.models")
         class_ = module.CustomUser
-        
+        # TODO: Need to do
+
+    def test_if_can_create_user(self) -> None: 
+        module = importlib.import_module("api.models")
+        class_ = module.CustomUser
+        new_user = class_.objects.create_user(
+            first_name="Mockson",
+            last_name="da Silva",
+            email="jvrezendemoura@gmail.com",
+            password="32322916aA!",
+        )
+        new_user.save()
+
+        self.assertIsInstance(new_user, User)
+
+    def test_if_user_instance_repr_is_correct(self) -> None:
+        module = importlib.import_module("api.models")
+
 
 class TestSignModel(TestCase):
     def setUp(self) -> None:
+
+        self.mock_user = User.objects.create_user(
+            first_name="Mockson",
+            last_name="da Silva",
+            email="mockson.dasilva@gmail.com",
+            password="32322916aA!"
+        )
+        self.mock_user.save()
+
         self.sign_class_fields = ["id", "name", "meaning", "hand_configuration",
                   "articulation_point", "movement","body_expression","direction_and_orientation"]
+        
         self.sign_instance = model.Sign.objects.create(
             name = "asdasd" ,
             meaning = "asdasd",
@@ -109,7 +140,8 @@ class TestSignModel(TestCase):
             articulation_point = "testa",
             movement = "asdasd",
             body_expression = "asdasd",
-            direction_and_orientation = "asdasd"
+            direction_and_orientation = "asdasd",
+            owner=self.mock_user
         )
 
 
@@ -130,6 +162,7 @@ class TestSignModel(TestCase):
         self.assertIsInstance(model.Sign._meta.get_field("movement"), models.CharField)
         self.assertIsInstance(model.Sign._meta.get_field("body_expression"), models.CharField)
         self.assertIsInstance(model.Sign._meta.get_field("direction_and_orientation"), models.CharField)
+        self.assertIsInstance(model.Sign._meta.get_field("owner"), models.ForeignKey)
 
     def test_if_id_field_have_the_correct_especifications(self) -> None:
         self.assertEqual(model.Sign._meta.get_field("id").unique, True)
