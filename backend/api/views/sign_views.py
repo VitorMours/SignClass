@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from ..serializers import ( SignGetSerializer, SignSerializer )
 from ..models import Sign
+from django.db.models import Q
 
 User = get_user_model()
     
@@ -16,12 +17,34 @@ class SignView(APIView):
     
     def get(self, request, format=None) -> Response:
         """
-        Get all the signs in the database and list them as json
+        Get all signs or search signs by name/meaning
         """
-        signs = Sign.objects.all()
-        serialized_data = SignGetSerializer(signs, many=True)
-        return Response(serialized_data.data, status= status.HTTP_200_OK)
-    
+        try:
+            query = request.GET.get("q", "").strip()
+            
+            if query:
+                print(f"Search query: {query}")
+                signs = Sign.objects.filter(
+                    Q(name__icontains=query) | Q(meaning__icontains=query)
+                )[:10]
+                print(f"Found {len(signs)} signs")
+                
+                # Usando serializer para consistência
+                serializer = SignGetSerializer(signs, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+                
+            else:
+                # Retorna todos os sinais (considerar paginação)
+                signs = Sign.objects.all()
+                serializer = SignGetSerializer(signs, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error in SignView: {str(e)}")
+            return Response(
+                {"error": "Error searching for signs"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )        
     
     def post(self, request, format=None) -> Response:
         """
@@ -66,7 +89,7 @@ class SignView(APIView):
                 
             except Exception as e:
                 return Response(
-                    {"error":"Please pass valid data to the form"}, 
+                    {"error":f"Please pass valid data to the form:{serializer.errors}"}, 
                     status = status.HTTP_400_BAD_REQUEST    
                )
                 

@@ -10,6 +10,7 @@ import { UserProvider } from "./contexts/UserContext";
 import theme from "./utils/theme";
 import ProfilePage from "./pages/ProfilePage";
 import ClassPage from "./pages/ClassPage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signin" element={<SigninPage />} />
                 <Route path="/home" element={<DashboardPage />} />
+                <Route path="/search" element={<SearchPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/video_class" element={<ClassPage />} />
               </Routes>
