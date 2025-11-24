@@ -28,7 +28,7 @@ urlpatterns = [
     # path('knowledge_sector/videos', VideoView.as_view(), name='knowledge_sector'),
     
     path('signs', SignView.as_view(), name='signs'),
-    path('signs/<uuid:pk>', SignDetailView.as_view(), name='signs_details'),
+    # path('signs/<uuid:pk>', SignDetailView.as_view(), name='signs_details'),
     
     path('videos', VideoView.as_view(), name='videos'),
     
