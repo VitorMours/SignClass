@@ -233,21 +233,21 @@ const ClassPage: React.FC = () => {
         lastGestureRef.current = null;
       }, 3000);
 
-      addGestureToChat(detectedGesture, maxProbability);
+      // MUDANÇA: Em vez de adicionar ao chat, digita no input
+      addGestureToInput(detectedGesture);
     }
   };
 
-  const addGestureToChat = (detectedGesture: string, probability: number) => {
-    const confidence = (probability * 100).toFixed(1);
-    const message = `🎯 Gesto detectado: ${detectedGesture} (${confidence}% confiança)`;
-    
-    const newMessage: Message = {
-      id: Date.now(),
-      text: message,
-      type: 'gesture'
-    };
-    
-    setMessages(prev => [...prev, newMessage]);
+  const addGestureToInput = (detectedGesture: string) => {
+    // Adiciona o nome do gesto ao input
+    setInput(prev => {
+      // Se o input estiver vazio, só adiciona o gesto
+      if (!prev.trim()) {
+        return detectedGesture;
+      }
+      // Se já tiver texto, adiciona um espaço e o gesto
+      return prev + ' ' + detectedGesture;
+    });
   };
 
   const stopCamera = () => {
@@ -345,7 +345,7 @@ const ClassPage: React.FC = () => {
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
-                placeholder="Digite uma mensagem..."
+                placeholder="Digite uma mensagem ou faça um gesto..."
                 fullWidth
                 size="small"
                 value={input}
@@ -467,7 +467,7 @@ const ClassPage: React.FC = () => {
 
             <CardActions>
               <Typography variant="caption" sx={{ ml: 1 }}>
-                💡 Gestos com +70% de confiança aparecem no chat
+                💡 Gestos com +70% aparecem no campo de texto
               </Typography>
             </CardActions>
           </Card>
