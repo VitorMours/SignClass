@@ -10,334 +10,471 @@ import {
   CardHeader,
   CardContent,
   CardActions,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import StopIcon from '@mui/icons-material/Stop';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+
+// Declarações TypeScript para Teachable Machine
+declare global {
+  interface Window {
+    tmImage: any;
+    tf: any;
+  }
+}
+
+interface Message {
+  id: number;
+  text: string;
+  type: 'gesture' | 'text';
+}
 
 const ClassPage: React.FC = () => {
   // Chat state
-  const [messages, setMessages] = useState<Array<{ id: number; text: string }>>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
 
-  // Camera refs/state
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const overlayRef = useRef<HTMLCanvasElement | null>(null);
-  const handsRef = useRef<any | null>(null);
-  const mpCameraRef = useRef<any | null>(null);
-  const [streamActive, setStreamActive] = useState(false);
-  const [snapshot, setSnapshot] = useState<string | null>(null);
-  const [gesture, setGesture] = useState<string | null>(null);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const lastGestureRef = useRef<string | null>(null);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const gestureTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Refs para containers do Teachable Machine
+  const webcamContainerRef = useRef<HTMLDivElement | null>(null);
+  const labelContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Dialog to show camera helper code
-  const [openCode, setOpenCode] = useState(false);
+  const [streamActive, setStreamActive] = useState(false);
+  const [gesture, setGesture] = useState<string | null>(null);
+
+  // Estados para IA
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [predictions, setPredictions] = useState<Array<{className: string, probability: number}>>([]);
+  const [debugInfo, setDebugInfo] = useState<string>('Aguardando inicialização...');
+
+  // Referências para IA
+  const lastGestureRef = useRef<string | null>(null);
+  const gestureTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const modelRef = useRef<any>(null);
+  const webcamRef = useRef<any>(null);
+  const animationFrameRef = useRef<number | null>(null);
+
+  // URL do modelo do Teachable Machine
+  const MODEL_URL = "https://teachablemachine.withgoogle.com/models/pUDZjNc3s/";
 
   useEffect(() => {
+    loadTeachableMachineScripts();
+
     return () => {
-      // cleanup on unmount
       stopCamera();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle gesture detection - add to input field
-  useEffect(() => {
-    if (gesture && gesture !== 'Unknown' && gesture !== lastGestureRef.current && streamActive) {
-      lastGestureRef.current = gesture;
+  const loadTeachableMachineScripts = () => {
+    if (window.tmImage) {
+      setIsModelLoaded(true);
+      setDebugInfo('✅ Teachable Machine já carregado');
+      return;
+    }
 
-      // Clear previous timeout if exists
+    setDebugInfo('🔄 Carregando bibliotecas...');
+
+    const tfScript = document.createElement('script');
+    tfScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js';
+    
+    tfScript.onload = () => {
+      setDebugInfo('🔄 TensorFlow.js OK, carregando Teachable Machine...');
+      
+      const tmScript = document.createElement('script');
+      tmScript.src = 'https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js';
+      
+      tmScript.onload = () => {
+        setIsModelLoaded(true);
+        setDebugInfo('✅ Teachable Machine carregado!');
+      };
+      
+      tmScript.onerror = () => {
+        setError('❌ Erro ao carregar Teachable Machine');
+        setDebugInfo('❌ Falha no carregamento do Teachable Machine');
+      };
+      
+      document.head.appendChild(tmScript);
+    };
+
+    tfScript.onerror = () => {
+      setError('❌ Erro ao carregar TensorFlow.js');
+      setDebugInfo('❌ Falha no carregamento do TensorFlow.js');
+    };
+
+    document.head.appendChild(tfScript);
+  };
+
+  const init = async () => {
+    if (!window.tmImage) {
+      setError('Teachable Machine não está disponível');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      setDebugInfo('🔄 Carregando modelo de IA...');
+
+      const modelURL = MODEL_URL + "model.json";
+      const metadataURL = MODEL_URL + "metadata.json";
+
+      // Carregar o modelo
+      const model = await window.tmImage.load(modelURL, metadataURL);
+      modelRef.current = model;
+      const maxPredictions = model.getTotalClasses();
+
+      setDebugInfo(`✅ Modelo carregado! ${maxPredictions} classes detectadas`);
+
+      // Setup da webcam do Teachable Machine
+      const flip = true;
+      const webcam = new window.tmImage.Webcam(480, 480, flip);
+      await webcam.setup();
+      await webcam.play();
+      webcamRef.current = webcam;
+
+      setDebugInfo('✅ Câmera iniciada, começando detecção...');
+
+      // Adicionar canvas da webcam ao container
+      if (webcamContainerRef.current) {
+        webcamContainerRef.current.innerHTML = '';
+        webcamContainerRef.current.appendChild(webcam.canvas);
+      }
+
+      // Criar labels no container
+      if (labelContainerRef.current) {
+        labelContainerRef.current.innerHTML = '';
+        for (let i = 0; i < maxPredictions; i++) {
+          const div = document.createElement("div");
+          div.style.padding = "4px";
+          div.style.fontSize = "12px";
+          labelContainerRef.current.appendChild(div);
+        }
+      }
+
+      setStreamActive(true);
+      setIsLoading(false);
+
+      // Iniciar loop de predição
+      loop();
+
+    } catch (err) {
+      console.error('Erro na inicialização:', err);
+      setError('Erro ao inicializar. Verifique as permissões da câmera.');
+      setDebugInfo(`❌ Erro: ${err}`);
+      setIsLoading(false);
+    }
+  };
+
+  const loop = async () => {
+    if (webcamRef.current && modelRef.current) {
+      webcamRef.current.update();
+      await predict();
+      animationFrameRef.current = window.requestAnimationFrame(loop);
+    }
+  };
+
+  const predict = async () => {
+    if (!modelRef.current || !webcamRef.current) return;
+
+    try {
+      const prediction = await modelRef.current.predict(webcamRef.current.canvas);
+      setPredictions(prediction);
+
+      // Atualizar labels
+      if (labelContainerRef.current) {
+        for (let i = 0; i < prediction.length; i++) {
+          const classPrediction =
+            prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+          
+          if (labelContainerRef.current.childNodes[i]) {
+            (labelContainerRef.current.childNodes[i] as HTMLElement).innerHTML = classPrediction;
+          }
+        }
+      }
+
+      // Processar gestos detectados
+      processDetectedGestures(prediction);
+
+    } catch (error) {
+      console.error('Erro na predição:', error);
+    }
+  };
+
+  const processDetectedGestures = (prediction: any[]) => {
+    if (!prediction || prediction.length === 0) return;
+
+    let maxProbability = 0;
+    let detectedGesture = '';
+
+    for (let i = 0; i < prediction.length; i++) {
+      const currentPred = prediction[i];
+      if (currentPred.probability > maxProbability && currentPred.probability > 0.7) {
+        maxProbability = currentPred.probability;
+        detectedGesture = currentPred.className;
+      }
+    }
+
+    setDebugInfo(`🎯 Detectando: ${detectedGesture || 'Nenhum gesto'} (${(maxProbability * 100).toFixed(1)}%)`);
+
+    if (detectedGesture && detectedGesture !== lastGestureRef.current) {
+      lastGestureRef.current = detectedGesture;
+      setGesture(detectedGesture);
+
       if (gestureTimeoutRef.current) {
         clearTimeout(gestureTimeoutRef.current);
       }
 
-      // Add gesture to input field
-      setInput((prev) => (prev ? `${prev} ${gesture}` : gesture));
-
-      // Reset gesture detection after 500ms to allow new gestures
       gestureTimeoutRef.current = setTimeout(() => {
+        setGesture(null);
         lastGestureRef.current = null;
-      }, 500);
+      }, 3000);
+
+      addGestureToChat(detectedGesture, maxProbability);
     }
-  }, [gesture, streamActive]);
+  };
 
-  function sendMessage() {
-    if (!input.trim()) return;
-    setMessages((m) => [...m, { id: Date.now(), text: input.trim() }]);
-    setInput('');
-  }
+  const addGestureToChat = (detectedGesture: string, probability: number) => {
+    const confidence = (probability * 100).toFixed(1);
+    const message = `🎯 Gesto detectado: ${detectedGesture} (${confidence}% confiança)`;
+    
+    const newMessage: Message = {
+      id: Date.now(),
+      text: message,
+      type: 'gesture'
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+  };
 
-  async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setStreamActive(true);
-
-      // try to initialize MediaPipe Hands (dynamic import)
-      try {
-        // @ts-ignore - dynamic import, package may not be present in all environments
-        const HandsModule = await import('@mediapipe/hands');
-        // @ts-ignore
-        const CameraUtils = await import('@mediapipe/camera_utils');
-        // @ts-ignore
-        const DrawingUtils = await import('@mediapipe/drawing_utils');
-
-        const hands = new HandsModule.Hands({
-          locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-        });
-
-        hands.setOptions({
-          maxNumHands: 1,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.7,
-          minTrackingConfidence: 0.5,
-        });
-
-        hands.onResults((results: any) => {
-          const canvas = overlayRef.current;
-          const video = videoRef.current;
-          if (!canvas || !video) return;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return;
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          if (results.image) ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
-          if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            for (const landmarks of results.multiHandLandmarks) {
-              DrawingUtils.drawConnectors(ctx, landmarks, HandsModule.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-              DrawingUtils.drawLandmarks(ctx, landmarks, { color: '#FF0000', lineWidth: 1 });
-            }
-            const l = results.multiHandLandmarks[0];
-            if (l) {
-              const gestureName = detectGesture(l);
-              setGesture(gestureName);
-            }
-          } else {
-            setGesture(null);
-          }
-        });
-
-        const camera = new CameraUtils.Camera(videoRef.current!, {
-          onFrame: async () => {
-            await hands.send({ image: videoRef.current! });
-          },
-          width: videoRef.current!.videoWidth || 640,
-          height: videoRef.current!.videoHeight || 480,
-        });
-
-        camera.start();
-        handsRef.current = hands;
-        mpCameraRef.current = camera;
-      } catch (err) {
-        console.warn('MediaPipe init failed:', err);
-      }
-    } catch (err) {
-      // Could show a toast or set error state
-      console.error('Erro ao acessar a câmera:', err);
-      setStreamActive(false);
+  const stopCamera = () => {
+    if (animationFrameRef.current) {
+      window.cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
-  }
 
-  function stopCamera() {
-    const stream = videoRef.current?.srcObject as MediaStream | null;
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-      if (videoRef.current) videoRef.current.srcObject = null;
+    if (webcamRef.current) {
+      webcamRef.current.stop();
+      webcamRef.current = null;
     }
+
+    if (gestureTimeoutRef.current) {
+      clearTimeout(gestureTimeoutRef.current);
+      gestureTimeoutRef.current = null;
+    }
+
+    if (webcamContainerRef.current) {
+      webcamContainerRef.current.innerHTML = '';
+    }
+
     setStreamActive(false);
-  }
+    setGesture(null);
+    lastGestureRef.current = null;
+    setDebugInfo('⏹️ Câmera parada');
+  };
 
-  function capture() {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
-    const canvas = canvasRef.current || document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const data = canvas.toDataURL('image/png');
-    setSnapshot(data);
-  }
+  const sendMessage = () => {
+    if (!input.trim()) return;
+    setMessages((m) => [...m, { 
+      id: Date.now(), 
+      text: input.trim(),
+      type: 'text' 
+    }]);
+    setInput('');
+  };
 
-  // Simple gesture detection based on hand landmarks (MediaPipe)
-  function detectGesture(landmarks: Array<{ x: number; y: number; z?: number }>) {
-    if (!landmarks || landmarks.length < 21) return 'Unknown';
-
-    try {
-      const isFingerExtended = (tipIdx: number, pipIdx: number) => {
-        const tip = landmarks[tipIdx];
-        const pip = landmarks[pipIdx];
-        return tip && pip && tip.y < pip.y;
-      };
-
-      const indexExt = isFingerExtended(8, 6);
-      const middleExt = isFingerExtended(12, 10);
-      const ringExt = isFingerExtended(16, 14);
-      const pinkyExt = isFingerExtended(20, 18);
-      const extendedCount = [indexExt, middleExt, ringExt, pinkyExt].filter(Boolean).length;
-
-      const thumbTip = landmarks[4];
-      const thumbIp = landmarks[3];
-      const wrist = landmarks[0];
-      const thumbExtended = thumbTip && thumbIp && thumbTip.y < thumbIp.y;
-      const thumbUp = thumbTip && wrist && thumbTip.y < wrist.y - 0.1;
-      const thumbDown = thumbTip && wrist && thumbTip.y > wrist.y + 0.1;
-
-      if (extendedCount === 0 && !thumbExtended) return '✊ Closed Fist';
-      if (extendedCount === 4 && thumbExtended) return '✋ Open Palm';
-      if (indexExt && middleExt && !ringExt && !pinkyExt && !thumbExtended) return '✌️ Peace';
-      if (thumbUp && thumbExtended && extendedCount === 0) return '👍 Thumbs Up';
-      if (thumbDown && thumbExtended && extendedCount === 0) return '👎 Thumbs Down';
-      if (indexExt && !middleExt && !ringExt && !pinkyExt && !thumbExtended) return '☝️ Pointing';
-      if (indexExt && !middleExt && !ringExt && pinkyExt && !thumbExtended) return '🤘 Rock';
-      if (indexExt && middleExt && ringExt && !pinkyExt && !thumbExtended) return '3️⃣ Three';
-
-      const totalExt = extendedCount + (thumbExtended ? 1 : 0);
-      return `${totalExt} finger(s)`;
-    } catch (e) {
-      return 'Unknown';
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
-  }
-
-  const cameraHelperCode = `// Exemplo de funções que este componente usa para acessar a câmera\nasync function startCamera() {\n  const stream = await navigator.mediaDevices.getUserMedia({ video: true });\n  videoElement.srcObject = stream;\n  await videoElement.play();\n}\n\nfunction stopCamera() {\n  const stream = videoElement.srcObject;\n  if (stream) stream.getTracks().forEach(t => t.stop());\n  videoElement.srcObject = null;\n}\n\nfunction capture() {\n  const canvas = document.createElement('canvas');\n  canvas.width = videoElement.videoWidth;\n  canvas.height = videoElement.videoHeight;\n  canvas.getContext('2d').drawImage(videoElement, 0, 0);\n  return canvas.toDataURL('image/png');\n}`;
+  };
 
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
-        Aula / Sala - Chat e Câmera
+        🎓 Aula - Chat com Detecção de Gestos IA
       </Typography>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
+      <Alert severity="info" sx={{ mb: 2 }}>
+        <Typography variant="body2">
+          <strong>Status:</strong> {debugInfo}
+        </Typography>
+      </Alert>
+
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        {/* Left: Chat area */}
-        <Box sx={{ flex: '1 1 60%', minWidth: 280 }}>
+        {/* Chat */}
+        <Box sx={{ flex: '1 1 60%', minWidth: 300 }}>
           <Paper sx={{ height: '70vh', display: 'flex', flexDirection: 'column', p: 2 }} elevation={2}>
             <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
               {messages.length === 0 ? (
-                <Typography color="text.secondary">Nenhuma mensagem ainda. Use o campo abaixo para enviar.</Typography>
+                <Typography color="text.secondary">
+                  Nenhuma mensagem ainda. Inicie a câmera para detectar gestos! 👋
+                </Typography>
               ) : (
                 messages.map((m) => (
-                  <Box key={m.id} sx={{ mb: 1 }}>
-                    <Paper sx={{ p: 1, display: 'inline-block' }}>
-                      <Typography variant="body2">{m.text}</Typography>
+                  <Box key={m.id} sx={{ mb: 1, display: 'flex', 
+                    justifyContent: m.type === 'gesture' ? 'center' : 'flex-start' 
+                  }}>
+                    <Paper sx={{ 
+                      p: 1.5, 
+                      display: 'inline-block',
+                      bgcolor: m.type === 'gesture' ? 'primary.light' : 'background.default',
+                      color: m.type === 'gesture' ? 'primary.contrastText' : 'text.primary',
+                      maxWidth: '80%',
+                      borderRadius: 2
+                    }}>
+                      <Typography variant="body2" sx={{ 
+                        fontWeight: m.type === 'gesture' ? 'bold' : 'normal',
+                      }}>
+                        {m.text}
+                      </Typography>
                     </Paper>
                   </Box>
                 ))
               )}
             </Box>
-            <Box component="form" onSubmit={(e) => { e.preventDefault(); sendMessage(); }} sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
-                placeholder="Escreva uma mensagem..."
+                placeholder="Digite uma mensagem..."
                 fullWidth
                 size="small"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
               />
-              <IconButton color="primary" onClick={sendMessage} aria-label="send">
+              <IconButton color="primary" onClick={sendMessage}>
                 <SendIcon />
               </IconButton>
             </Box>
           </Paper>
         </Box>
 
-        {/* Right: Camera card */}
-        <Box sx={{ flex: '1 1 38%', minWidth: 280 }}>
+        {/* Câmera */}
+        <Box sx={{ flex: '1 1 38%', minWidth: 320 }}>
           <Card elevation={2} sx={{ height: '70vh', display: 'flex', flexDirection: 'column' }}>
-            <CardHeader title="Câmera do usuário" subheader="Permita o acesso ao dispositivo" />
-            <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: 'grey.100', position: 'relative' }}>
-                <video ref={videoRef} style={{ maxWidth: '100%', maxHeight: '100%' }} playsInline muted />
-                <canvas
-                  ref={overlayRef}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    pointerEvents: 'none',
-                  }}
-                />
+            <CardHeader 
+              title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CameraAltIcon />
+                  Detecção de Gestos por IA
+                  {isModelLoaded && <PsychologyIcon color="success" fontSize="small" />}
+                </Box>
+              }
+              subheader="Teachable Machine + TensorFlow.js"
+            />
+            <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {/* Webcam Container */}
+              <Box sx={{ 
+                position: 'relative',
+                bgcolor: 'grey.100',
+                borderRadius: 1,
+                overflow: 'hidden',
+                minHeight: 320,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                border: '2px solid',
+                borderColor: streamActive ? 'success.main' : 'grey.300'
+              }}>
+                <div ref={webcamContainerRef} style={{ 
+                  width: '100%', 
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }} />
+                
                 {gesture && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      bottom: 10,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      bgcolor: 'rgba(0, 0, 0, 0.7)',
-                      color: 'white',
-                      px: 2,
-                      py: 1,
-                      borderRadius: 1,
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {gesture}
+                  <Box sx={{
+                    position: 'absolute',
+                    bottom: 10,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    bgcolor: 'rgba(0, 0, 0, 0.9)',
+                    color: '#00ff00',
+                    px: 3,
+                    py: 1.5,
+                    borderRadius: 2,
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    border: '2px solid #00ff00',
+                  }}>
+                    🎯 {gesture}
+                  </Box>
+                )}
+
+                {!streamActive && (
+                  <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                    <CameraAltIcon sx={{ fontSize: 48, mb: 1 }} />
+                    <Typography>Clique em "Iniciar" para começar</Typography>
+                  </Box>
+                )}
+
+                {isLoading && (
+                  <Box sx={{ textAlign: 'center' }}>
+                    <CircularProgress size={32} sx={{ mb: 1 }} />
+                    <Typography variant="body2">Iniciando IA...</Typography>
                   </Box>
                 )}
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
-                <Button variant="contained" startIcon={<CameraAltIcon />} onClick={startCamera} disabled={streamActive}>
-                  Iniciar câmera
-                </Button>
-                <Button variant="outlined" startIcon={<StopIcon />} onClick={stopCamera} disabled={!streamActive}>
-                  Parar câmera
-                </Button>
-                <Button variant="contained" onClick={capture} disabled={!streamActive}>
-                  Capturar
-                </Button>
-                <Button variant="text" onClick={() => setOpenCode(true)}>
-                  Ver código da câmera
-                </Button>
+              {/* Previsões */}
+              <Box sx={{ 
+                p: 1.5, 
+                bgcolor: 'grey.50', 
+                borderRadius: 1,
+                maxHeight: 150,
+                overflow: 'auto'
+              }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  📊 Previsões em Tempo Real:
+                </Typography>
+                <div ref={labelContainerRef} />
               </Box>
 
-              {snapshot && (
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="subtitle2">Última captura:</Typography>
-                  <Box component="img" src={snapshot} alt="snapshot" sx={{ width: '100%', mt: 1 }} />
-                </Box>
-              )}
-
-              <canvas ref={canvasRef} style={{ display: 'none' }} />
+              {/* Botões */}
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                <Button 
+                  variant="contained" 
+                  startIcon={isLoading ? <CircularProgress size={16} /> : <CameraAltIcon />}
+                  onClick={init} 
+                  disabled={streamActive || isLoading || !isModelLoaded}
+                  size="medium"
+                >
+                  {isLoading ? 'Iniciando...' : 'Iniciar'}
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<StopIcon />} 
+                  onClick={stopCamera} 
+                  disabled={!streamActive}
+                  size="medium"
+                >
+                  Parar
+                </Button>
+              </Box>
             </CardContent>
 
             <CardActions>
               <Typography variant="caption" sx={{ ml: 1 }}>
-                Dica: permita o acesso à câmera no navegador.
+                💡 Gestos com +70% de confiança aparecem no chat
               </Typography>
             </CardActions>
           </Card>
         </Box>
       </Box>
-
-      <Dialog open={openCode} onClose={() => setOpenCode(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Código de acesso à câmera</DialogTitle>
-        <DialogContent>
-          <Box component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 13 }}>{cameraHelperCode}</Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenCode(false)}>Fechar</Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
-
 
 export default ClassPage;
